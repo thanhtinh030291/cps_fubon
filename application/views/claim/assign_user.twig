@@ -1,0 +1,86 @@
+{% extends "skeleton.twig" %}
+
+{% block body %}
+<div class="container-fluid">
+    <h1 class="text-primary">Assign User #{{ user_name }}</h1>
+    {% if msg_danger %}
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        {{ msg_danger }}
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    {% endif %}
+    {% if msg_success %}
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        {{ msg_success }}
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    {% endif %}
+    <div class="row">
+        <div class="col-12">
+            <div class="card text-white bg-info">
+                <div class="card-header"><h4>Searching Payments</h4></div>
+            </div>
+            <div class="alert alert-info" role="alert">
+                <form role="form" enctype="multipart/form-data" method="post" >
+                    <div class="form-row">
+                        <div class="form-group col-2 form-row">
+                            <label for="cl_no" class="col-4 col-form-label"><b>Claim No</b></label>
+                            <input type="number" class="col-7 form-control" min="1601010001" max="4212319999" id="cl_no" name="cl_no" value="{{ post.cl_no }}">
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-danger" name="btnSearchPayment">Search</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% if searched_payments %}
+    <div class="row">
+        <div class="col-12">
+            <div class="card border-primary">
+                <div class="card-header text-primary"><h3>Assign User</h3></div>
+                <div class="card-body table-responsive">
+                    <table class="table table-hover table-striped table-bordered">
+                        <thead>
+                            <tr class="bg-primary text-white">
+                                <th scope="col">Payment ID</th>
+                                <th scope="col">Payment No</th>
+                                <th scope="col">Transfer Status</th>
+                                <th scope="col">Transfer Amt</th>
+                                <th scope="col">Deduct Amt</th>
+                                <th scope="col">Assigned To</th>
+                                <th scope="col">Finance User</th>
+                                <th scope="col">Update Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {%for payment in searched_payments %}
+                            <tr>
+                                <td scope="col">{{ payment.PARQ_ID }}</td>
+                                <td scope="col">{{ payment.CL_NO }}-{{ payment.TF_TIMES }}</td>
+                                <th scope="col" class="text-{{ payment.TFST_COLOR }}">{{ payment.TFST_NAME|capitalize }}</th>
+                                <td scope="col" class="text-right">{{ payment.TF_AMT|number_format }}</td>
+                                <td scope="col" class="text-right">{{ payment.DEDUCT_AMT|number_format }}</td>
+                                <td scope="col">{{ payment.CL_USER_NAME }}</td>
+                                <td scope="col">{{ payment.FI_USER_NAME }}</td>
+                                <td scope="col">{{ payment.UPD_DATE|date('Y-m-d H:i:s') }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block script %}
+<script>
+$('#assign-user').addClass('active');
+</script>
+{% endblock %}

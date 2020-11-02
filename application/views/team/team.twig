@@ -1,0 +1,203 @@
+{% extends "skeleton.twig" %}
+
+{% block css %}
+<link href="{{ base_url() }}assets/css/datatables.min.css" rel="stylesheet">
+{% endblock %}
+
+{% block style %}
+.chat {list-style: none;margin:0;padding:0}
+.chat li {margin-bottom:10px;padding-bottom:5px;border-bottom:1px dotted #B3A9A9}
+.chat li.left .chat-body {margin-left:60px;}
+.chat li .chat-body p {margin:0;color:#777777}
+.chat .fas {margin-right:0px}
+{% endblock %}
+
+{% block body %}
+<div class="row py-3">
+    <div class="col-8">
+        <div class="card border-success">
+            <div class="card-header text-success custom-control custom-switch">
+                <input type="checkbox" class="custom-control-input" id="customSwitch1">
+                <h3>{{ lang('team_user') }}<button class="btn btn-dark float-right" data-toggle="collapse" data-target="#disabled">{{ lang('team_user_toggle_disabled_btn') }}</button></h3>
+            </div>
+            {% if enabled_users %}
+            <form id="enabled_users" role="form" enctype="multipart/form-data" method="post">
+                <div class="card-body table-responsive">
+                    <table class="table table-sm table-hover table-striped table-bordered" id="enabledTable">
+                        <thead>
+                            <tr>
+                                <th scope="col">{{ lang('team_user_col_user_name') }}</th>
+                                <th scope="col">{{ lang('team_user_col_full_name') }}</th>
+                                <th scope="col">{{ lang('team_user_col_email') }}</th>
+                                <th scope="col">{{ lang('team_user_col_leader') }}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for user in enabled_users %}
+                            <tr class="text-success">
+                                <td>
+                                    <div class="custom-control custom-checkbox">
+                                        <input type="checkbox" class="custom-control-input" id="{{ user.USER_ID }}" value="{{ user.USER_ID }}">
+                                        <label class="custom-control-label" for="{{ user.USER_ID }}">
+                                            <i class="fas fa-user-circle align-middle"></i> {{ user.USER_NAME }}
+                                        </label>
+                                    </div>
+                                </td>
+                                <td>{{ user.FULLNAME }}</td>
+                                <td>{{ user.EMAIL }}</td>
+                                <td>{{ leaders[user.LEADER_ID].USER_NAME }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                        <tfooter>
+                            <tr>
+                                <td>
+                                    <button type="submit" class="btn btn-warning" name="btnSetLeader" id="btnSetLeader">
+                                        <i class="fas fa-bolt"></i> {{ lang('team_user_set_leader_btn') }}
+                                    </button>
+                                </td>
+                                <td>
+                                    <button type="submit" class="btn btn-secondary" name="btnDisableUser" id="btnDisableUser">
+                                        <i class="fas fa-minus"></i> {{ lang('team_user_disable_btn') }}
+                                    </button>
+                                </td>
+                                <td colspan="2">
+                                    <div class="was-validated d-flex justify-content-around">
+                                        <button type="submit" class="btn btn-primary" id="btnMoveToTeam" name="btnMoveToTeam">
+                                            <i class="fas fa-arrow-circle-right"></i> {{ lang('team_user_move_btn') }}
+                                        </button>&nbsp
+                                        <select class="form-control text-primary" id="selectedLeader" name="selectedLeader">
+                                            <option value="0">{{ lang('team_user_select_desc') }}</option>
+                                            {% for leader in leaders %}
+                                            <option value="{{ leader.USER_ID }}">{{ leader.USER_NAME }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tfooter>
+                    </table>
+                </div>
+                <!-- Hidden -->
+                <input type="hidden" name="selected_ids" id="selected_ids">
+            </form>
+            {% endif %}
+            {% if disabled_users %}
+            <form id="disabled_users" role="form" enctype="multipart/form-data" method="post">
+                <div class="card-footer table-responsive collapse" id="disabled">
+                    <table class="table table-sm table-hover table-striped table-bordered">
+                        <thead>
+                            <tr>
+                                <th scope="col">{{ lang('team_user_col_user_name') }}</th>
+                                <th scope="col">{{ lang('team_user_col_full_name') }}</th>
+                                <th scope="col">{{ lang('team_user_col_email') }}</th>
+                                <th scope="col"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for user in disabled_users %}
+                            <tr class="text-muted">
+                                <td><i class="fas fa-user-circle align-middle"></i> {{ user.USER_NAME }}</td>
+                                <td>{{ user.FULLNAME }}</td>
+                                <td>{{ user.EMAIL }}</td>
+                                <td><button type="submit" class="btn btn-sm btn-success" name="btnEnableUser" value="{{ user.USER_ID }}">
+                                    <i class="fas fa-plus"></i> {{ lang('team_user_enable_btn') }}
+                                </button></td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </form>
+            {% endif %}
+        </div>
+    </div>
+    <div class="col-4">
+        <div class="card border-primary">
+            <div class="card-header text-info">
+                    <h3>{{ lang('team_leader') }}</h3>
+                </div>
+            <div class="card-body">
+                <ul class="nav flex-column chat">
+                    {% for leader in leaders %}
+                    <li class="left clearfix card text-danger">
+                        <div class="card-header">
+                            <img src="http://placehold.it/50/ff6600/fff&text={{ leader.USER_NAME|slice(0, 2)|upper }}" class="rounded-circle float-left"/>
+                            <div class="chat-body clearfix">
+                                <div class="header">
+                                    <strong class="text-primary">{{ leader.USER_NAME }}</strong>
+                                </div>
+                                <p>{{ lang('team_has_member')|format(leader.members|length) }}
+                                    <span class="float-right">
+                                        <a href="#" title="Set User" data-toggle="modal" data-target="#set_user_{{ leader.USER_ID }}">
+                                            <i class="fas fa-times text-danger align-middle"></i>
+                                        </a>
+                                    </span>
+                                </p>
+                            </div>
+                        </div>
+                    </li>
+                    <div class="modal fade" id="set_user_{{ leader.USER_ID }}" tabindex="-1" role="dialog" aria-labelledby="confirmTitle" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title text-primary" id="confirmTitle">{{ lang('team_set_user_btn') }}</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
+                                    <form role="form" enctype="multipart/form-data" method="post">
+                                        <button type="submit" class="btn btn-danger" name="btnSetUser" value="{{ leader.USER_ID }}">Yes</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block script %}
+<script type="text/javascript" src="{{ base_url() }}assets/js/datatables.min.js"></script>
+<script>
+$( document ).ready( function () {
+    $( '#cl-team' ).addClass( 'active' );
+    var dataTable;
+    dataTable = $( '#enabledTable' ).DataTable( {
+        lengthChange: false,
+    } );
+    var btnMoveToTeamClick;
+    $( "#btnMoveToTeam" ).click( function() {
+        btnMoveToTeamClick = true;
+    } );
+    $( "#btnSetLeader, #btnDisableUser" ).click( function() {
+        btnMoveToTeamClick = false;
+    } );
+    $( '#enabled_users' ).on( 'submit', function( e ) {
+        if ( btnMoveToTeamClick == true && $( '#selectedLeader option:selected' ).val() == 0 ) {
+            e.preventDefault();
+            alert( "{{ lang('team_user_alert_leader') }}" );
+        } else {
+            var selected = [];
+            dataTable.rows().nodes().to$().find( 'input[type="checkbox"]' ).each( function() {
+                if ( this.checked ) {
+                   selected.push( this.value );
+                }
+            } );
+            if ( selected.length === 0 ) {
+                e.preventDefault();
+                alert( "{{ lang('team_user_alert') }}" );
+            } else {
+                $( '#selected_ids' ).val( JSON.stringify( selected ) );
+            }
+        }
+    } );
+} );
+</script>
+{% endblock %}

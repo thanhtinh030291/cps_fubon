@@ -1,0 +1,67 @@
+{% extends "skeleton.twig" %}
+
+{% block style %}
+.bg-gray {background-color:#e7e6e6}
+{% endblock %}
+
+{% block menu %}{% endblock %}
+{% block body %}
+<div class="row flex-xl-nowrap">
+    <div class="col-12 col-md-3 col-xl-2 bd-sidebar"></div>
+    {% if department == 'FI' %}
+    <div class="d-none d-xl-block col-xl-2 bd-toc">
+        <ul class="section-nav">
+            <li class="toc-entry toc-h2"><a href="#main">{{ lang('home_section_1') }}</a></li>
+            <li class="toc-entry toc-h2"><a href="#sub">{{ lang('home_section_2') }}</a></li>
+        </ul>
+    </div>
+    {% endif %}
+    <main class="col-12 col-md-9 col-xl-8 py-md-3 pl-md-5 bd-content" role="main">
+        <h1 class="bd-title text-center"><b>{{ lang('home_title') }}</b></h1>
+        <h2 id="main">{% if department == 'FI' %}{{ lang('home_section_1') }}{% endif %}</h2>
+        <div class="card-deck mx-auto">
+            <div class="card text-white bg-primary mb-3">
+                <div class="card-header"><a href="{{ base_url() }}index.php/enter/dlvn/"><img class="card-img-top" src="{{ base_url() }}assets/img/logo.png"></a></div>
+                <div class="card-body">
+                    <h5 class="card-title text-center">{{ lang('home_main_1') }}</h5>
+                </div>
+            </div>
+            <div class="card text-white bg-success mb-3">
+                <div class="card-header"><a href="#"><img class="card-img-top" src="{{ base_url() }}assets/img/logo.png"></a></div>
+                <div class="card-body">
+                    <h5 class="card-title text-center">{{ lang('home_main_2') }}</h5>
+                </div>
+            </div>
+            <div class="card text-white bg-danger mb-3">
+                <div class="card-header"><a href="#"><img class="card-img-top" src="{{ base_url() }}assets/img/logo.png"></a></div>
+                <div class="card-body">
+                    <h5 class="card-title text-center">{{ lang('home_main_3') }}</h5>
+                </div>
+            </div>
+        </div>
+        {% if department == 'FI' %}
+        <h2 id="sub">{{ lang('home_section_2') }}</h2>
+        <div class="card-deck mx-auto">
+            <div class="card text-white bg-secondary mb-3">
+                <div class="card-header"><a href="#"><img class="card-img-top" src="{{ base_url() }}assets/img/subicon.jpg"></a></div>
+                <div class="card-body">
+                    <h5 class="card-title text-center">{{ lang('home_sub_1') }}</h5>
+                </div>
+            </div>
+            <div class="card text-white bg-secondary mb-3">
+                <div class="card-header"><a href="#"><img class="card-img-top" src="{{ base_url() }}assets/img/subicon.jpg"></a></div>
+                <div class="card-body">
+                    <h5 class="card-title text-center">{{ lang('home_sub_2') }}</h5>
+                </div>
+            </div>
+            <div class="card text-white bg-secondary mb-3">
+                <div class="card-header"><a href="#"><img class="card-img-top" src="{{ base_url() }}assets/img/subicon.jpg"></a></div>
+                <div class="card-body">
+                    <h5 class="card-title text-center">{{ lang('home_sub_3') }}</h5>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </main>
+</div>
+{% endblock %}

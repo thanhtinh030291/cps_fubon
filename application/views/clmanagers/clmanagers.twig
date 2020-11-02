@@ -1,0 +1,118 @@
+{% extends "skeleton.twig" %}
+
+{% block css %}
+<link href="{{ base_url() }}assets/css/datatables.min.css" rel="stylesheet">
+{% endblock %}
+
+{% block body %}
+<div class="row my-3">
+    <div class="col-12">
+        <div class="card border-{{ class }}">
+            <div class="card-header text-{{ class }}">
+                <h3>{{ lang('clmanagers_' ~ page) }}
+                    {% if leader %}<span class="text-leader"> - {{ leader }}</span>{% endif %}
+                    {% if member %}<span class="text-primary"> - {{ member }}</span>{% endif %}
+                </h3>
+                <h6 class="card-subtitle text-secondary">{{ lang('clmanagers_' ~ page ~ '_desc') }}</h6>
+            </div>
+            <div class="card-body table-responsive">
+                <table class="table table-hover table-striped table-bordered">
+                    <thead>
+                        <tr class="bg-info text-white">
+                            <th scope="col">{{ lang('col_id') }}</th>
+                            <th scope="col">{{ lang('col_payment_no') }}</th>
+                            <th scope="col">{{ lang('col_mantis_id') }}</th>
+                            <th scope="col">{{ lang('col_tf_amt') }}</th>
+                            <th scope="col">{{ lang('col_pres_amt') }}</th>
+                            <th scope="col">{{ lang('col_app_amt') }}</th>
+                            <th scope="col">{{ lang('col_memb_ref_no') }}</th>
+                            <th scope="col">{{ lang('col_pocy_ref_no') }}</th>
+                            <th scope="col">{{ lang('col_cl_user') }}</th>
+                            <th scope="col">{{ lang('col_upd_date') }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for payment in payments %}
+                            {% if payment.YN_HOLD == 'Y' %}
+                        <tr class="bg-hold">
+                            {% else %}
+                        <tr>
+                            {% endif %}
+                            <th class="text-right">
+                                {% if payment.YN_NEW == 'Y' %}
+                                <i class="fas fa-star text-danger" title="new"></i>
+                                {% endif %}
+                                {{ payment.PAYM_ID }}
+                            </th>
+                            <td>
+                                <a href="{{ base_url() }}index.php/payments/{{ payment.PAYM_ID }}">{{ payment.PAYMENT_NO }}</a>
+                                {% if payment.YN_HOLD == 'Y' %}
+                                <i class="fas fa-lock text-white" title="hold"></i>
+                                {% endif %}
+                            </td>
+                            <td class="text-right">
+                                {% if payment.MANTIS_ID %}
+                                <a class="text-success" href="{{ constant('MANTIS_VIEW') ~ payment.MANTIS_ID }}">{{ payment.MANTIS_ID }}</a>
+                                {% endif %}
+                            </td>
+                            <td class="text-right">{{ payment.TF_AMT|number_format }}</td>
+                            <td class="text-right">{{ payment.PRES_AMT|number_format }}</td>
+                            <td class="text-right">{{ payment.APP_AMT|number_format }}</td>
+                            <td class="text-right">{{ payment.MEMB_REF_NO }}</td>
+                            <td class="text-right">{{ payment.POCY_REF_NO }}</td>
+                            <td class="text-right">{{ payment.CL_USER }}</td>
+                            <td>{{ payment.UPD_DATE }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="card-footer">
+                <div class="card-deck mx-auto text-center mb-3">
+                    {% for leader, number in leaders %}
+                    <div class="card border-leader">
+                        <div class="card-header bg-leader text-white"><h5>{{ leader }}</h5></div>
+                        <div class="card-body">
+                            <h1 class="card-title font-weight-bold"><a href="{{ base_url() }}index.php/clmanagers/{{ page }}/{{ leader }}" class="card-link text-{{ class }}">{{ number }}</a></h1>
+                        </div>
+                    </div>
+                        {% if loop.index is divisible by(5) %}
+                </div>
+                <div class="card-deck mx-auto text-center mb-3">
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+            {% if members %}
+            <div class="card-footer">
+                <div class="card-deck mx-auto text-center mb-3">
+                    {% for user, number in members %}
+                    <div class="card border-primary">
+                        <div class="card-header bg-primary text-white"><h5>{{ user }}</h5></div>
+                        <div class="card-body">
+                            <h1 class="card-title font-weight-bold"><a href="{{ base_url() }}index.php/clmanagers/{{ page }}/{{ leader }}/{{ user }}" class="card-link text-{{ class }}">{{ number }}</a></h1>
+                        </div>
+                    </div>
+                        {% if loop.index is divisible by(5) %}
+                </div>
+                <div class="card-deck mx-auto text-center mb-3">
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block script %}
+<script type="text/javascript" src="{{ base_url() }}assets/js/datatables.min.js"></script>
+<script>
+$( '#clmanagers-{{ menu }}' ).addClass( 'active' );
+$( '.table' ).DataTable( {
+    lengthChange: false,
+    "order": [[ 9, "asc" ]]
+} );
+</script>
+{% endblock %}

@@ -1,0 +1,336 @@
+{% extends "skeleton.twig" %}
+
+{% block css %}
+<link href="{{ base_url() }}assets/css/datatables.min.css" rel="stylesheet">
+{% endblock %}
+
+{% block style %}
+.chat {list-style: none;margin:0;padding:0}
+.chat li {margin-bottom:10px;padding-bottom:5px;border-bottom:1px dotted #B3A9A9}
+.chat li.left .chat-body {margin-left:60px;}
+.chat li .chat-body p {margin:0;color:#777777}
+.chat .fas {margin-right:0px}
+{% endblock %}
+
+{% block body %}
+<div class="row py-3">
+    <div class="col-4">
+        <div class="card border-primary">
+            <div class="card-header text-info">
+                    <h3>{{ lang('team_leader') }}</h3>
+                </div>
+            <div class="card-body">
+                <ul class="nav flex-column chat" role="tablist">
+                    {% for leader,members in leaders %}
+                    <li class="left clearfix">
+                        <a class="float-left" id="{{ leader }}-tab" data-toggle="tab" href="#{{ leader }}" role="tab" aria-controls="{{ leader }}">
+                            <img src="http://placehold.it/50/{{ colors[leader] }}/fff&text={{ leader|first|upper }}" class="rounded-circle"/>
+                        </a>
+                        <div class="chat-body clearfix">
+                            <div class="header">
+                                <strong class="text-primary">{{ leader }}</strong>
+                            </div>
+                            <p>{{ lang('team_has_member')|format(members|length) }}
+                            <span class="float-right">
+                                <a href="#" title="{{ lang('team_set_user_btn') }}" data-toggle="modal" data-target="#set_member_{{ leader }}">
+                                    <i class="fas fa-times text-danger align-middle"></i>
+                                </a>
+                            </span>
+                        </div>
+                    </li>
+                    <div class="modal fade" id="set_member_{{ leader }}" tabindex="-1" role="dialog" aria-labelledby="confirmTitle" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title text-primary" id="confirmTitle">{{ lang('cl_team_set_user_title') }}</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ lang('clmanagers_modal_btn_no') }}</button>
+                                    <form role="form" enctype="multipart/form-data" method="post" action="{{ base_url() }}index.php/team/set_member/{{ leader }}">
+                                        <button type="submit" class="btn btn-danger">{{ lang('clmanagers_modal_btn_yes') }}</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="col-4 tab-content">
+        {% for leader,members in leaders %}
+        <div class="tab-pane" id="{{ leader }}" role="tabpanel" aria-labelledby="{{ leader }}-tab">
+            <div class="card border-info">
+                <div class="card-header text-primary">
+                    <ul class="chat">
+                        <li class="left clearfix">
+                            <span class="chat-img float-left">
+                                <img src="http://placehold.it/50/{{ colors[leader] }}/fff&text={{ leader|first|upper }}" class="rounded-circle"/>
+                            </span>
+                            <div class="chat-body clearfix">
+                                <div class="header">
+                                    <b>{{ leader }}</b>
+                                </div>
+                                <b class="text-dark">{{ lang('cl_team_leader') }}</b>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+                <div class="card-body table-responsive">
+                    <table class="table table-hover">
+                        <tbody>
+                            {% for member in members %}
+                            <tr class="text-info">
+                                <td>
+                                    <span class="fa-stack">
+                                        <i class="fas fa-square fa-stack-2x"></i>
+                                        <strong class="fa-stack-1x text-white">{{ loop.index }}</strong>
+                                    </span>
+                                    <i class="fas fa-user-circle fa-2x align-middle"></i> {{ member }}
+                                    <span class="float-right">
+                                        <a href="#" title="{{ lang('cl_team_exclude_btn') }}" data-toggle="modal" data-target="#exclude_{{ member }}">
+                                            <i class="fas fa-times text-danger align-middle"></i>
+                                        </a>
+                                    </span>
+                                </td>
+                            </tr>
+                            <div class="modal fade" id="exclude_{{ member }}" tabindex="-1" role="dialog" aria-labelledby="confirmTitle" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title text-primary" id="confirmTitle">{{ lang('cl_team_exclude_title') }}</h5>
+                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ lang('clmanagers_modal_btn_no') }}</button>
+                                            <form role="form" enctype="multipart/form-data" method="post" action="{{ base_url() }}index.php/team/exclude/{{ member }}">
+                                                <button type="submit" class="btn btn-danger">{{ lang('clmanagers_modal_btn_yes') }}</button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    <div class="col-4">
+        <div class="card border-success">
+            <div class="card-header text-success">
+                <h3>{{ lang('cl_team_user') }}<button class="btn btn-dark float-right" data-toggle="collapse" data-target="#disabled">{{ lang('cl_team_user_show_disabled_btn') }}</button></h3>
+                <h6 class="card-subtitle text-muted">{{ lang('cl_team_user_desc') }}</h6>
+            </div>
+            {% if enabled_users %}
+            <div class="card-body table-responsive">
+                <table class="table table-hover">
+                    <tbody>
+                        <form id="UsersForm" role="form" enctype="multipart/form-data" method="post" action="{{ base_url() }}index.php/team/update_members">
+                            {% for cl_user in enabled_users %}
+                            <tr class="text-success">
+                                <td>
+                                    <span class="fa-stack">
+                                        <i class="fas fa-square fa-stack-2x"></i>
+                                        <strong class="fa-stack-1x text-white">{{ loop.index }}</strong>
+                                    </span>
+                                    <i class="fas fa-user-circle fa-2x align-middle"></i> {{ cl_user }}
+                                    <div class="float-right custom-control custom-checkbox">
+                                        <input type="checkbox" class="custom-control-input" id="{{ cl_user }}" name="members[]" value="{{ cl_user }}">
+                                        <label class="custom-control-label" for="{{ cl_user }}"></label>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                            <tr>
+                                <td>
+                                    <div class="d-flex justify-content-between">
+                                        <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#modal_set_leader">
+                                            <i class="fas fa-bolt"></i> {{ lang('cl_team_user_set_leader_btn') }}
+                                        </button>
+                                        <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#modal_disable">
+                                            <i class="fas fa-minus"></i> {{ lang('cl_team_user_disable_btn') }}
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="was-validated d-flex justify-content-around">
+                                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modal_add_member">
+                                            <i class="fas fa-bolt"></i> {{ lang('cl_team_user_add_member_btn') }}
+                                        </button>
+                                        <select class="form-control text-primary" id="leader" name="leader" required>
+                                            <option></option>
+                                            {% for leader,members in leaders %}
+                                            <option value="{{ leader }}">{{ leader }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </td>
+                            </tr>
+                            <input type="hidden" name="action" id="action"/>
+                        </form>
+                    </tbody>
+                </table>
+            </div>
+            {% endif %}
+            {% if disabled_users %}
+            <div class="card-footer table-responsive collapse" id="disabled">
+                <table class="table table-hover">
+                    <tbody>
+                        <form id="DisUsersForm" role="form" enctype="multipart/form-data" method="post" action="{{ base_url() }}index.php/team/enable">
+                            {% for cl_user in disabled_users %}
+                            <tr class="text-muted">
+                                <td>
+                                    <span class="fa-stack">
+                                        <i class="fas fa-square fa-stack-2x"></i>
+                                        <strong class="fa-stack-1x text-white">{{ loop.index }}</strong>
+                                    </span>
+                                    <i class="fas fa-user-circle fa-2x align-middle"></i> {{ cl_user }}
+                                    <div class="float-right custom-control custom-checkbox">
+                                        <input type="checkbox" class="custom-control-input" id="{{ cl_user }}" name="dismembers[]" value="{{ cl_user }}">
+                                        <label class="custom-control-label" for="{{ cl_user }}"></label>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                            <tr>
+                                <td>
+                                    <div class="d-flex flex-row-reverse">
+                                        <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#modal_enable">
+                                            <i class="fas fa-plus"></i> {{ lang('cl_team_user_enable_btn') }}
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </form>
+                    </tbody>
+                </table>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% if enabled_users %}
+<div class="modal fade" id="modal_set_leader" tabindex="-1" role="dialog" aria-labelledby="confirmTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title text-primary" id="confirmTitle">{{ lang('cl_team_user_set_leader_title') }}</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ lang('clmanagers_modal_btn_no') }}</button>
+                <button class="btn btn-danger" id="btn_set_leader">{{ lang('clmanagers_modal_btn_yes') }}</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="modal_disable" tabindex="-1" role="dialog" aria-labelledby="confirmTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title text-primary" id="confirmTitle">{{ lang('cl_team_user_disable_title') }}</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ lang('clmanagers_modal_btn_no') }}</button>
+                <button class="btn btn-danger" id="btn_disable">{{ lang('clmanagers_modal_btn_yes') }}</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="modal_add_member" tabindex="-1" role="dialog" aria-labelledby="confirmTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title text-primary" id="confirmTitle">{{ lang('cl_team_user_add_member_title') }}</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ lang('clmanagers_modal_btn_no') }}</button>
+                <button class="btn btn-danger" id="btn_add_member">{{ lang('clmanagers_modal_btn_yes') }}</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% if disabled_users %}
+<div class="modal fade" id="modal_enable" tabindex="-1" role="dialog" aria-labelledby="confirmTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title text-primary" id="confirmTitle">{{ lang('cl_team_user_enable_title') }}</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ lang('clmanagers_modal_btn_no') }}</button>
+                <button class="btn btn-danger" id="btn_enable">{{ lang('clmanagers_modal_btn_yes') }}</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block script %}
+<script>
+$('#cl-team').addClass('active');
+$('#btn_set_leader').click(function() {
+    if ($('input[name="members[]"]:checked').length > 0) {
+        $('#action').val('set_leader');
+        $('#UsersForm').submit();
+    } else {
+        alert("{{ lang('cl_team_user_alert') }}");
+        window.location.href = "team";
+    }
+});
+$('#btn_disable').click(function() {
+    if ($('input[name="members[]"]:checked').length > 0) {
+        $('#action').val('disable');
+        $('#UsersForm').submit();
+    } else {
+        alert("{{ lang('cl_team_user_alert') }}");
+        window.location.href = "team";
+    }
+});
+$('#btn_add_member').click(function() {
+    if ($('input[name="members[]"]:checked').length > 0) {
+        $('#action').val('add_member');
+        $('#UsersForm').submit();
+    } else {
+        if ($("#leader").val() == "") {
+            alert("{{ lang('cl_team_user_alert_leader') }}");
+        } else {
+            alert("{{ lang('cl_team_user_alert') }}");
+        }
+        window.location.href = "team";
+    }
+});
+$('#btn_enable').click(function() {
+    if ($('input[name="dismembers[]"]:checked').length > 0) {
+        $('#DisUsersForm').submit();
+    } else {
+        alert("{{ lang('cl_team_user_alert') }}");
+        window.location.href = "team";
+    }
+});
+</script>
+{% endblock %}

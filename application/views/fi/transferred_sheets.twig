@@ -1,0 +1,194 @@
+{% extends "skeleton.twig" %}
+
+{% block css %}
+<link href="{{ base_url() }}assets/css/datatables.min.css" rel="stylesheet">
+{% endblock %}
+
+{% block style %}
+.btn-excel {color: fff;background-color:#006622;border-color:#006622}
+{% endblock %}
+
+{% block body %}
+<div class="row my-3">
+    <div class="col-12">
+        <div class="card text-white bg-info">
+            <div class="card-header"><h4>{{ lang('menu_transferred_sheets') }}</h4></div>
+        </div>
+        <div class="alert alert-info" role="alert">
+            <form id="transferred_sheet" class="was-validated" role="form" enctype="multipart/form-data" method="post">
+                <div class="form-row">
+                    <div class="form-group col-3">
+                        <label for="sheet_id" class="col-form-label text-right"><b>{{ lang('fi_modal_sheet_name') }}</b></label>
+                        <select class="form-control" name="sheet_id" id="sheet_id" required>
+                            <option></option>
+                            {% for sheet in sheets %}
+                            <option value="{{ sheet.SHEET_ID }}" {% if sheet.SHEET_ID == post.sheet_id %}selected{% endif %}>{{ sheet.SHEET_NAME }} {% if sheet.SHEET_UNAME %}({{ sheet.SHEET_UNAME }}){% endif %}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-danger" name="btnSearch">{{ lang('search_btn') }}</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% if post %}
+<div class="row my-3">
+    <div class="col-6">
+        <div class="card border-info">
+            <div class="card-header text-info">
+                <div class="row">
+                    <div class="col-12">
+                        <h3 class="text-secondary">{{ lang('fi_vcbsheet_title') }}{{ sheets[post.sheet_id].SHEET_NAME }}</h3> 
+                        <h6 class="card-subtitle text-muted">{{ vcbsheets.SHEET_UNAME }}</h6>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body table-responsive">
+                <table id="vcbsheet" class="table table-sm table-hover table-striped table-bordered">
+                    <thead>
+                        <tr class="bg-info text-white">
+                            <th scope="col">{{ lang('vcb_no') }}</th>
+                            <th scope="col">{{ lang('vcb_ref_no') }}</th>
+                            <th scope="col">{{ lang('vcb_ben_acct') }}</th>
+                            <th scope="col">{{ lang('vcb_pp_no') }}</th>
+                            <th scope="col">{{ lang('vcb_pp_date') }}</th>
+                            <th scope="col">{{ lang('vcb_pp_place') }}</th>
+                            <th scope="col">{{ lang('vcb_ben_name') }}</th>
+                            <th scope="col">{{ lang('vcb_bank_name') }}</th>
+                            <th scope="col">{{ lang('vcb_amt') }}</th>
+                            <th scope="col">{{ lang('vcb_currency') }}</th>
+                            <th scope="col">{{ lang('vcb_content') }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% set total_amt = 0 %}
+                        {% for row in vcbsheets %}
+                            {% set total_amt = total_amt + row.AMT %}
+                        <tr>
+                            <th scope="col" class="text-right">{{ row.SHEET_ORDER }}</th>
+                            <td scope="col"></td>
+                            <td scope="col">{{ row.BEN_ACCT }}</td>
+                            <td scope="col"></td>
+                            <td scope="col"></td>
+                            <td scope="col"></td>
+                            <td scope="col">{{ row.BEN_NAME }}</td>
+                            <td scope="col">{{ row.BANK_NAME }}</td>
+                            <td scope="col" class="text-right">{{ row.AMT|number_format }}</td>
+                            <td scope="col">{{ row.CURRENCY }}</td>
+                            <td scope="col">{{ row.CONTENT }}</td>
+                        </tr>
+                        {% endfor %}
+                        <tfoot>
+                            <tr>
+                            {% for i in 1..7 %}
+                                <td></td>
+                            {% endfor %}
+                                <th class="text-primary">{{ lang('fi_total_amt') }}</th>
+                                <th class="text-primary text-right">{{ total_amt|number_format }}</th>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                        </tfoot>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="col-6">
+        <div class="card border-info">
+            <div class="card-header text-info">
+                <div class="row">
+                    <div class="col-12">
+                        <h3 class="text-secondary">{{ lang('fi_vnbtsheet_title') }}{{ vnbt_header.VNBT_FILENAME }}</h3> 
+                        <h6 class="card-subtitle text-muted">{{ vnbt_header.VNBT_REF_NAME }} - {{ vnbt_header.DEBIT_ACCT_NO }}</h6>
+                        {{ lang('fi_vnbtsheet_print_date') }}{{ vnbt_header.PRINT_DATE|date('d/m/Y H:i:s') }} -
+                        {{ lang('fi_vnbtsheet_upl_date') }}{{ vnbt_header.UPL_DATE|date('d/m/Y H:i:s') }}
+                        </h6>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body table-responsive">
+                <table class="table table-sm table-hover table-striped table-bordered">
+                    <thead>
+                        <tr class="bg-info text-white">
+                            <th scope="col">{{ lang('vnbt_no') }}</th>
+                            <th scope="col">{{ lang('vnbt_ben_acct') }}</th>
+                            <th scope="col">{{ lang('vnbt_ben_name') }}</th>
+                            <th scope="col">{{ lang('vnbt_bank_name') }}</th>
+                            <th scope="col">{{ lang('vnbt_pp_no') }}</th>
+                            <th scope="col">{{ lang('vnbt_pp_place') }}</th>
+                            <th scope="col">{{ lang('vnbt_pp_date') }}</th>
+                            <th scope="col">{{ lang('vnbt_tf_amt') }}</th>
+                            <th scope="col">{{ lang('vnbt_fee_amt') }}</th>
+                            <th scope="col">{{ lang('vnbt_vat_amt') }}</th>
+                            <th scope="col">{{ lang('vnbt_teller_id') }}</th>
+                            <th scope="col">{{ lang('vnbt_seq') }}</th>
+                            <th scope="col">{{ lang('vnbt_tf_date') }}</th>
+                            <th scope="col">{{ lang('vnbt_status') }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in vnbt_body %}
+                        <tr>
+                            <th scope="col" class="text-right">{{ row.VNBS_ORDER }}</th>
+                            <td scope="col">{{ row.BEN_ACCT }}</td>
+                            <td scope="col">{{ row.BEN_NAME }}</td>
+                            <td scope="col">{{ row.BANK_NAME }}</td>
+                            <td scope="col"></td>
+                            <td scope="col"></td>
+                            <td scope="col"></td>
+                            <td scope="col" class="text-right">{{ row.TF_AMT }}</td>
+                            <td scope="col" class="text-right">{{ row.FEE_AMT }}</td>
+                            <td scope="col" class="text-right">{{ row.VAT_AMT }}</td>
+                            <td scope="col">{{ row.TELLER_ID }}</td>
+                            <td scope="col">{{ row.SEQ }}</td>
+                            <td scope="col">{{ row.TF_DATE|date('d/m/Y') }}</td>
+                            <td scope="col">{{ row.STATUS }}</td>
+                        </tr>
+                        {% endfor %}
+                        <tfoot>
+                            <tr>
+                            {% for i in 1..7 %}
+                                <td></td>
+                            {% endfor %}
+                                <th class="text-primary text-right">{{ vnbt_header.TF_AMT }}</th>
+                                <th class="text-primary text-right">{{ vnbt_header.FEE_AMT }}</th>
+                                <th class="text-primary text-right">{{ vnbt_header.VAT_AMT }}</th>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <th class="bg-white text-primary">{{ vnbt_header.STATUS }}</th>
+                            </tr>
+                        </tfoot>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block script %}
+<script type="text/javascript" src="{{ base_url() }}assets/js/datatables.min.js"></script>
+<script>
+$('#fi-reports').addClass('active');
+$('#vcbsheet').DataTable({
+    lengthChange: false,
+    order: false,
+    paging: false,
+    searching: false,
+    dom: "<'row'<'col-9'B><'col-3'f>>" +
+         "<'row'<'col-12'tr>>",
+    buttons: [
+        {
+            extend: 'excel',
+            filename: 'transferred_vcb_sheet_{{ sheet.SHEET_NAME }}_DLVN',
+            className: 'btn btn-excel',
+            title : null
+        }
+    ]
+});
+</script>
+{% endblock %}

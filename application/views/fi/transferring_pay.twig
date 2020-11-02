@@ -1,0 +1,72 @@
+{% extends "skeleton.twig" %}
+
+{% block css %}
+<link href="{{ base_url() }}assets/css/jquery-ui.min.css" rel="stylesheet">
+{% endblock %}
+
+{% block body %}
+<div class="row my-3">
+    <div class="col-12">
+        <div class="card border-info">
+            <div class="card-header border-primary text-center">
+                <h4 class="text-primary">{{ lang('fi_transferring_pay_title') }}<h4>
+            </div>
+            <div class="card-body table-responsive">
+                <table class="table table-bordered">
+                    <form role="form" enctype="multipart/form-data" method="post" action="{{ base_url() }}index.php/fi/pay">
+                        <tbody>
+                            <tr>
+                                <th scope="row" class="text-info">{{ lang('col_cl_no') }}</th>
+                                {% for payment in payments %}
+                                <th scope="col" class="text-leader">{{ payment.CL_NO }}</th>
+                                {% endfor %}
+                            </tr>
+                            <tr>
+                                <th scope="row" class="text-info">{{ lang('col_tf_amt') }}</th>
+                                {% for payment in payments %}
+                                <th class="text-primary">{{ payment.TF_AMT|number_format }}</th>
+                                {% endfor %}
+                            </tr>
+                            <tr>
+                                <th scope="row" class="text-info">{{ lang('col_tf_date') }}</th>
+                                {% for payment in payments %}
+                                <td class="was-validated">
+                                    <input type="text" name="tf_date_{{ payment.PAYM_ID }}" class="form-control tf_date" autocomplete="off" required>
+                                </td>
+                                {% endfor %}
+                            </tr>
+                            <tr>
+                                <th scope="row" class="text-info">{{ lang('col_vcb_seq') }}</th>
+                                {% for payment in payments %}
+                                <td class="was-validated">
+                                    <input type="text" maxlength="15" name="vcb_seq_{{ payment.PAYM_ID }}" class="form-control" autocomplete="off" required>
+                                </td>
+                                {% endfor %}
+                            </tr>
+                            <tr>
+                                <td colspan="{{ payments|length + 1 }}">
+                                    <button type="submit" class="btn btn-danger">{{ lang('fi_transferring_pay_btn') }}</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                        <!-- Hidden -->
+                        <input type="hidden" name="paym_ids" value="{{ paym_ids }}">
+                    </form>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block script %}
+<script type="text/javascript" src="{{ base_url() }}assets/js/jquery-ui.min.js"></script>
+<script>
+$(document).ready(function(){
+    $('#fi-claimant').addClass('active');
+    $('.tf_date').datepicker({
+        dateFormat: 'dd/mm/yy'
+    });
+});
+</script>
+{% endblock %}

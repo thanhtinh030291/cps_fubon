@@ -1,0 +1,112 @@
+{% extends "skeleton.twig" %}
+
+{% block css %}
+<link href="{{ base_url() }}assets/css/datatables.min.css" rel="stylesheet">
+{% endblock %}
+
+{% block body_title %}
+<h1 class="text-primary">{{ lang('menu_gop') }}</h1>
+{% endblock %}
+
+{% block body %}
+<div class="row">
+    <div class="col-12">
+        <div class="card border-info">
+            <div class="card-header text-info">
+                <div class="row">
+                    <div class="col-12">
+                        <h3>{{ lang('prov_title') }}</h3>
+                        <h6 class="card-subtitle text-muted">{{ lang('prov_desc') }}</h6>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body table-responsive">
+                <table class="table table-hover table-striped table-bordered" id="providers-table">
+                    <thead>
+                        <tr class="bg-info text-white">
+                            <th scope="col">{{ lang('col_prov_code') }}</th>
+                            <th scope="col">{{ lang('col_prov_name') }}</th>
+                            <th scope="col">{{ lang('col_is_hold') }}</th>
+                            <th scope="col">{{ lang('col_upd_user') }}</th>
+                            <th scope="col">{{ lang('col_upd_date') }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for provider in providers %}
+                        <tr {% if provider.IS_HOLD %} class="bg-danger text-white" {% endif %}>
+                            <th scope="col">{{ provider.PROV_CODE }}
+                                {% if not is_finance %}
+                                <span class="float-right">
+                                    {% if provider.IS_HOLD %}
+                                    <a href="#" title="unhold" data-toggle="modal" data-target="#needUnhold{{ provider.PROV_CODE }}"><i class="fas fa-minus text-white"></i></a>
+                                    {% else %}
+                                    <a href="#" title="hold" data-toggle="modal" data-target="#needHold{{ provider.PROV_CODE }}"><i class="fas fa-plus text-danger"></i></a>
+                                    {% endif %}
+                                </span>
+                                {% endif %}
+                            </th>
+                            <td scope="col">{{ provider.PROV_NAME }}</td>
+                            <td scope="col">{{ lang('col_is_hold_' ~ provider.IS_HOLD) }}</td>
+                            <td scope="col">{{ provider.UPD_USER }}</td>
+                            <td scope="col">{{ provider.UPD_DATE }}</td>
+                        </tr>
+                        {% if not is_finance %}
+                        <div class="modal fade" id="needUnhold{{ provider.PROV_CODE }}" tabindex="-1" role="dialog" aria-labelledby="confirmTitle" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title text-info" id="confirmTitle">{{ lang('prov_unhold_confirm_title') }} {{ provider.PROV_CODE }} ?</h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ lang('btn_no') }}</button>
+                                        <form role="form" enctype="multipart/form-data" method="post" action="providers/unhold/{{ provider.PROV_CODE }}">
+                                            <button type="submit" class="btn btn-success">{{ lang('btn_yes') }}</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal fade" id="needHold{{ provider.PROV_CODE }}" tabindex="-1" role="dialog" aria-labelledby="confirmTitle" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title text-info" id="confirmTitle">{{ lang('prov_hold_confirm_title') }} {{ provider.PROV_CODE }} ?</h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ lang('btn_no') }}</button>
+                                        <form role="form" enctype="multipart/form-data" method="post" action="providers/hold/{{ provider.PROV_CODE }}">
+                                            <button type="submit" class="btn btn-success">{{ lang('btn_yes') }}</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block script %}
+<script type="text/javascript" src="{{ base_url() }}assets/js/datatables.min.js"></script>
+<script>
+$('#gop').addClass('active');
+$('#providers-table').DataTable({
+    lengthChange: false,
+    "order": [[ 2, "desc" ]],
+});
+$(".alert-dismissible").fadeTo(3000, 500).slideUp(500, function(){
+    $(".alert-dismissible").slideUp(500);
+});
+</script>
+{% endblock %}

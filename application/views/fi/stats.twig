@@ -1,0 +1,126 @@
+{% extends "skeleton.twig" %}
+
+{% block css %}
+<link href="{{ base_url() }}assets/css/jquery-ui.min.css" rel="stylesheet">
+{% endblock %}
+
+{% block style %}
+.large-size {font-size:80px}
+{% endblock %}
+
+{% block body %}
+<div class="row flex-xl-nowrap">
+    <div class="col-12 col-md-3 col-xl-2 bd-sidebar"></div>
+    <div class="d-none d-xl-block col-xl-2 bd-toc">
+        <ul class="section-nav">
+            <li class="toc-entry toc-h2"><a href="#claimant">{{ lang('fi_stats_claimant') }}</a></li>
+            <li class="toc-entry toc-h2"><a href="#partner">{{ lang('fi_stats_partner') }}</a></li>
+        </ul>
+    </div>
+    <main class="col-12 col-md-9 col-xl-8 py-md-3 pl-md-5 bd-content" role="main">
+        <div class="card-deck mx-auto text-center">
+            <div class="card border-danger mb-3">
+                <div class="card-header bg-danger text-white">
+                    <h5>{{ lang('fi_stats_fund_title') }}
+                        <a href="#" title="{{ lang('fi_stats_replenish_btn') }}" data-toggle="modal" data-target="#replenish">
+                            <i class="fas fa-battery-full text-white"></i>
+                        </a>
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <h1 class="card-title font-weight-bold large-size"><a href="#" class="card-link text-danger">VND {{ balance|number_format }}</a></h1>
+                </div>
+            </div>
+        </div>
+        <h3 id="claimant">{{ lang('fi_stats_claimant') }}</h3>
+        <div class="card-deck mx-auto text-center">
+            <div class="card border-primary mb-3">
+                <div class="card-header bg-primary text-white"><h6>{{ lang('menu_claimant_approved')|upper }} (Member)</h6></div>
+                <div class="card-body">
+                    <h1 class="card-title font-weight-bold large-size"><a href="{{ base_url() }}index.php/fi/approved/M" class="card-link text-primary">{{ n_approved_claimant_m }}</a></h1>
+                </div>
+            </div>
+            <div class="card border-primary mb-3">
+                <div class="card-header bg-primary text-white"><h6>{{ lang('menu_claimant_approved')|upper }} (Provider)</h6></div>
+                <div class="card-body">
+                    <h1 class="card-title font-weight-bold large-size"><a href="{{ base_url() }}index.php/fi/approved/P" class="card-link text-primary">{{ n_approved_claimant_p }}</a></h1>
+                </div>
+            </div>
+            <div class="card border-success mb-3">
+                <div class="card-header bg-success text-white"><h6>{{ lang('menu_claimant_sheets')|upper }}</h6></div>
+                <div class="card-body">
+                    <h1 class="card-title font-weight-bold large-size"><a href="{{ base_url() }}index.php/fi/sheets" class="card-link text-success">{{ n_sheet_claimant }}</a></h1>
+                </div>
+            </div>
+            <div class="card border-warning mb-3">
+                <div class="card-header bg-warning text-white"><h6>{{ lang('menu_claimant_payments')|upper }}</h6></div>
+                <div class="card-body">
+                    <h1 class="card-title font-weight-bold large-size"><a href="{{ base_url() }}index.php/fi/transferring" class="card-link text-warning">{{ n_transferring_claimant }}</a></h1>
+                </div>
+            </div>
+        </div>
+        <h3 id="partner">{{ lang('fi_stats_partner') }}</h3>
+        <div class="card-deck mx-auto text-center">
+            <div class="card border-primary mb-3">
+                <div class="card-header bg-primary text-white"><h5>{{ lang('menu_partner_approved')|upper }}</h5></div>
+                <div class="card-body">
+                    <h1 class="card-title font-weight-bold large-size"><a href="{{ base_url() }}index.php/fi/partner" class="card-link text-primary">{{ n_approved_partner }}</a></h1>
+                </div>
+            </div>
+            <div class="card border-success mb-3">
+                <div class="card-header bg-success text-white"><h5>{{ lang('menu_partner_sheets')|upper }}</h5></div>
+                <div class="card-body">
+                    <h1 class="card-title font-weight-bold large-size"><a href="{{ base_url() }}index.php/fi/partner/sheets" class="card-link text-success">{{ n_sheet_partner }}</a></h1>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+<div class="modal fade" id="replenish" tabindex="-1" role="dialog" aria-labelledby="confirmTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title text-info" id="confirmTitle">{{ lang('fi_stats_replenish_title') }}</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form class="was-validated" role="form" enctype="multipart/form-data" method="post" action="{{ base_url() }}index.php/fi/replenish">
+                <div class="modal-body">
+                    <div class="form-group row">
+                        <label for="replen_date" class="col-6 col-form-label"><b>{{ lang('fi_replen_date') }}</b></label>
+                        <div class="col-6">
+                            <input type="text" id="replen_date" class="form-control date" name="replen_date" autocomplete="off" required>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="replen_amt" class="col-6 col-form-label"><b>{{ lang('fi_replen_amt') }}</b></label>
+                        <div class="col-6">
+                            <input type="text" id="replen_amt" class="form-control price" name="replen_amt" autocomplete="off" required>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ lang('fi_modal_no_btn') }}</button>
+                    <button type="submit" class="btn btn-success">{{ lang('fi_modal_yes_btn') }}</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block script %}
+<script type="text/javascript" src="{{ base_url() }}assets/js/jquery-ui.min.js"></script>
+<script type="text/javascript" src="{{ base_url() }}assets/js/jquery.price_format.2.0.js"></script>
+<script>
+$('#fi-stats').addClass('active');
+$('.date').datepicker({
+    dateFormat: 'dd/mm/yy'
+});
+$('.price').priceFormat({
+    prefix: '',
+    centsLimit: 0,
+});
+</script>
+{% endblock %}

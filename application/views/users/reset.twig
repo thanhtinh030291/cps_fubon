@@ -1,0 +1,62 @@
+{% extends "skeleton.twig" %}
+
+{% block body_title %}
+<h1 class="text-success">{{ lang('edit_user_title')|format(user.USER_ID) }}</h1>
+{% endblock %}
+
+{% block body %}
+<div class="row my-3">
+    <div class="col-12">
+        <div class="card border-info">
+            <div class="card card-header">
+                <form id="form-reset" class="was-validated" role="form" enctype="multipart/form-data" method="post">
+                    <input type="hidden" name="CipheredValue" id="CipheredValue">
+                    <div class="form-row">
+                        <div class="form-group col-6">
+                            <div class="row">
+                                <label for="password" class="col-4 col-form-label">{{ lang('user_password') }}</label>
+                                <div class="col-8">
+                                    <input type="password" minlength="8" maxlength="16" class="form-control" id="password" name="password" required>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+                <!-- Hidden -->
+                <textarea id="pubkey" style="visibility:hidden;">{{ public_key }}</textarea>
+                <div>
+                    <button id="send" class="btn btn-primary"><i class="fas fa-check"></i> {{ lang('user_btn_reset') }}</button>
+                    <a href="{{ base_url() }}" class="btn btn-danger" role="button" aria-pressed="true"><i class="fas fa-times"></i> {{ lang('user_btn_cancel') }}</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block script %}
+<script type="text/javascript" src="{{ base_url() }}assets/js/jsencrypt.min.js"></script>
+<script>
+$( document ).ready( function() {
+    // menu active
+    $( '#users' ).addClass( 'active' );
+    // submit
+    $( function () {
+        $( '#send' ).click( function() {
+            var encrypt = new JSEncrypt();
+            encrypt.setPublicKey($( '#pubkey' ).val());
+            var encrypted = encrypt.encrypt( $( '#password' ).val() );
+            $( '#CipheredValue' ).val( encrypted );
+            $( '#form-reset' ).submit();
+        } );
+    } );
+    
+    //Validate the form if the user press enter key in password field
+    $( '#password' ).keypress( function( e ) {
+        if ( e.keyCode == 13 ) {
+            $( '#send' ).click();
+        }
+    } );
+} );
+</script>
+{% endblock %}

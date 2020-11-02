@@ -1,0 +1,155 @@
+{% extends "skeleton.twig" %}
+
+{% block css %}
+<link href="{{ base_url() }}assets/css/datatables.min.css" rel="stylesheet">
+{% endblock %}
+
+{% block body_title %}
+<h1 class="text-primary">{{ lang('fi_approved_upload_title') }}</h1>
+{% endblock %}
+
+{% block body %}
+<div class="row my-3">
+    <div class="col-12">
+        <div class="card border-primary mb-3">
+            <div class="alert alert-info" role="alert">
+                <p class="mb-0">{{ lang('fi_approved_upload_input') }}</p>
+                <div class="table-responsive">
+                    <table class="table table-bordered bg-light">
+                        <tr class="text-center">
+                            <th>{{ lang('fi_approved_upload_col_memb_name') }}</th>
+                            <th>{{ lang('fi_approved_upload_col_pocy_ref_no') }}</th>
+                            <th>{{ lang('fi_approved_upload_col_memb_ref_no') }}</th>
+                            <th>{{ lang('fi_approved_upload_col_cl_no') }}</th>
+                            <th>{{ lang('fi_approved_upload_col_pres_amt') }}</th>
+                        </tr>
+                        <tr class="text-center">
+                            <th>{{ lang('fi_approved_upload_col_app_amt') }}</th>
+                            <th>{{ lang('fi_approved_upload_col_tf_amt') }}</th>
+                            <th>{{ lang('fi_approved_upload_col_recharge_amt') }}</th>
+                            <th>{{ lang('fi_approved_upload_col_payment_method') }}</th>
+                            <th>{{ lang('fi_approved_upload_col_issue_id') }}</th>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+            <div class="alert alert-warning" role="alert">
+                <form class="was-validated" role="form" enctype="multipart/form-data" method="post">
+                    <div class="form-row">
+                        <div class="form-group col-6 mb-0">
+                            <div class="custom-file">
+                                <input type="file" accept=".xlsx" class="custom-file-input" id="claim_xlsx" name="claim_xlsx" required>
+                                <label class="custom-file-label" for="approved">{{ lang('fi_choose_file') }}</label>
+                            </div>
+                        </div>
+                        <div class="col-2">
+                            <button type="submit" class="btn btn-primary" name="btnValidate">{{ lang('fi_approved_validate_btn') }}</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            {% if sheetData %}
+            <div class="card-body table-responsive">
+                <table class="table table-hover table-striped table-bordered" id="sheetData">
+                    <thead>
+                        <tr class="bg-info text-white">
+                            <th scope="col">{{ lang('fi_approved_validate_btn') }}</th>
+                            <th scope="col">{{ lang('col_memb_name') }}</th>
+                            <th scope="col">{{ lang('col_pocy_ref_no') }}</th>
+                            <th scope="col">{{ lang('col_memb_ref_no') }}</th>
+                            <th scope="col">{{ lang('col_cl_no') }}</th>
+                            <th scope="col">{{ lang('col_pres_amt') }}</th>
+                            <th scope="col">{{ lang('col_app_amt') }}</th>
+                            <th scope="col">{{ lang('col_tf_amt') }}</th>
+                            <th scope="col">{{ lang('col_deduct_amt') }}</th>
+                            <th scope="col">{{ lang('col_payment_method') }}</th>
+                            <th scope="col">{{ lang('col_mantis_id') }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for id, row in sheetData if id > 1 %}
+                        <tr {% if row.K %}class="bg-danger text-white"{% endif %}>
+                            <td>{{ row.K }}</td>
+                            {% for letter in 'A'..'J' %}
+                            <td>{{ row[letter] }}</td>
+                            {% endfor %}
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                    {% if paym_ids %}
+                    <tfoot>
+                        <tr>
+                            <td colspan="11">
+                                <form role="form" enctype="multipart/form-data" method="post" action="{{ base_url() }}index.php/confirm_upload">
+                                    <div class="form-row">
+                                        <div class="col-1">
+                                            <button type="submit" class="btn btn-danger" name="btnUpload">{{ lang('fi_approved_upload_btn') }}</button>
+                                        </div>
+                                        <div class="form-group col-2 mb-0">
+                                            <select class="form-control" name="claimant_sheet_id" id="claimant_sheet_id">
+                                                <option value="0">{{ lang('fi_approved_upload_new_claimant_sheet') }} </option>
+                                                {% for sheet in claimant_sheets %}
+                                                <option value="{{ sheet.SHEET_ID }}">{{ sheet.SHEET_NAME }}{% if sheet.SHEET_UNAME %} ({{ sheet.SHEET_UNAME }}){% endif %}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                        <div class="form-group col-2 mb-0">
+                                            <select class="form-control" name="partner_sheet_id" id="partner_sheet_id">
+                                                <option value="0">{{ lang('fi_approved_upload_new_partner_sheet') }} </option>
+                                                {% for sheet in partner_sheets %}
+                                                <option value="{{ sheet.SHEET_ID }}">{{ sheet.SHEET_NAME }}{% if sheet.SHEET_UNAME %} ({{ sheet.SHEET_UNAME }}){% endif %}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                        <div class="form-group col-2">
+                                            <input type="text" class="form-control" placeholder="{{ lang('fi_approved_upload_placeholder') }}" name="sheet_uname">
+                                        </div>
+                                        <!-- Hidden -->
+                                        <input type="hidden" name="paym_ids" value="{{ paym_ids }}">
+                                        <input type="hidden" name="transfers" value="{{ transfers }}">
+                                        <input type="hidden" name="deducts" value="{{ deducts }}">
+                                    </div>
+                                </form>
+                            </td>
+                        </tr>
+                    </tfoot>
+                    {% endif %}
+                </table>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block script %}
+<script type="text/javascript" src="{{ base_url() }}assets/js/datatables.min.js"></script>
+<script>
+$('#fi-claimant').addClass('active');
+$('#claim_xlsx').on('change', function() {
+    var ext = this.value.match(/\.([^\.]+)$/)[1];
+    if (ext != 'xlsx') {
+        alert('not allowed');
+        this.value='';
+    } else {
+        $(this).next('.custom-file-label').html(document.getElementById('claim_xlsx').files[0].name);
+    }
+});
+$('#sheetData').DataTable({
+    lengthChange: false,
+    ordering: false,
+    dom: "<'row'<'col-9'B><'col-3'f>>" +
+         "<'row'<'col-12'tr>>" +
+         "<'row'<'col-5'i><'col-7'p>>",
+    buttons: [{
+        extend: 'excel',
+        filename: 'approved_upload_error_{{ now|date("d-m-Y H-i-s") }}_FUBON',
+        className: 'btn btn-excel',
+        title : null,
+        exportOptions: {
+            rows: '.bg-danger'
+        }
+    }]
+});
+</script>
+{% endblock %}

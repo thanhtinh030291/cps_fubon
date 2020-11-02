@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <head>
+        
+        <style>
+        @font-face {
+            font-family: "DejaVu Sans";
+            font-style: normal;
+            font-weight: 200;
+            src: url("/fonts/dejavu-sans/DejaVuSans.ttf");
+            /* IE9 Compat Modes */
+            src: 
+                local("DejaVu Sans"), 
+                local("DejaVu Sans"), 
+                url("/fonts/dejavu-sans/DejaVuSans.ttf") format("truetype");
+            }
+            h1, .h1 {
+            font-size: 2.5rem;
+            }
+
+            h2, .h2 {
+            font-size: 2rem;
+            }
+
+            h3, .h3 {
+            font-size: 1.75rem;
+            }
+
+            h4, .h4 {
+            font-size: 1.5rem;
+            }
+
+            h5, .h5 {
+            font-size: 1.25rem;
+            }
+
+            h6, .h6 {
+            font-size: 1rem;
+            }
+
+            
+            body { 
+            font-family: "DejaVu Sans";
+            font-size:
+            }
+            .font-weight-bold {
+                font-size: 10px;
+            }
+            table { 
+                width: 110%; 
+                border-collapse: collapse; 
+               
+                }
+
+            /* Zebra striping */
+            tr:nth-of-type(odd) { 
+                background: #eee; 
+                }
+
+            th { 
+                background: #5a5858; 
+                color: white; 
+                font-weight: bold;
+                font-size: 8px;
+                }
+
+            td, th { 
+                padding: 5px; 
+                border: 1px solid #ccc; 
+                text-align: left; 
+                font-size: 10px;
+                }
+            p {
+                margin-top: 0;
+                margin-bottom: 0.5rem;
+                font-size: 10px;
+                }
+        </style>
+    </head>
+</head>
+<body>
+    <h4 style="text-align: center;width: 85%; margin-left: 50px;">DANH SÁCH THANH TOÁN BỒI THƯỜNG BẢO HIỂM SỨC KHỎE NGÀY {% for tf_date in tf_dates %}{{tf_date.TF_DATE}} {% endfor %} (CHI HỘ CÔNG TY BẢO HIỂM NHÂN THỌ DAI-ICHI VIỆT NAM)</h4>
+    <div style="position: absolute; left: 5px; top: 0px;">
+        <img src="{{ base_url() }}assets/img/claim_fund_logo.png" width="90px">
+    </div>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Claim No</th>
+                <th>Tranfer Amt</th>
+                <th>Payment Method</th>
+                <th>Bank Acc Name</th>
+                <th>Bank Acc No</th>
+                <th>Bank Name</th>
+                <th>Bank Branch</th>
+                <th>Bank City</th>
+                <th>Beneficiary Name</th>
+                <th>Passport No</th>
+                <th>Passport Issue Date</th>
+                <th>Passport Issue Place</th>
+                <th>Member Name</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for payment in payments %}
+            <tr>
+                <td>{{ payment.CL_NO }}</td>
+                <td class="text-right">{{ payment.TF_AMT|number_format }}</td>
+                <td>{{ payment.PAY_METHOD }}</td>
+                <td>{{ payment.ACCT_NAME }}</td>
+                <td>{{ payment.ACCT_NO }}</td>
+                <td>{{ payment.BANK_NAME }}</td>
+                <td>{{ payment.BANK_BRANCH }}</td>
+                <td>{{ payment.BANK_CITY }}</td>
+                <td>{{ payment.BENEFICIARY_NAME }}</td>
+                <td>{{ payment.PP_NO }}</td>
+                <td>{% if payment.PP_DATE %}{{ payment.PP_DATE|date('d/m/Y') }}{% endif %}</td>
+                <td>{{ payment.PP_PLACE }}</td>
+                <td></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

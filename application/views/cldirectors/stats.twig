@@ -1,0 +1,80 @@
+{% extends "skeleton.twig" %}
+
+{% block body %}
+<div class="row flex-xl-nowrap">
+    <div class="col-12 col-md-3 col-xl-2 bd-sidebar"></div>
+    <main class="col-12 col-md-9 col-xl-8 py-md-3 pl-md-5 bd-content" role="main">
+        <div class="card-deck mx-auto text-center mb-3">
+            <div class="card border-danger">
+                <div class="card-header bg-danger text-white"><h5>{{ lang('status_director_approval') }}</h5></div>
+                <div class="card-body">
+                    <h1 class="card-title font-weight-bold large-size"><a href="{{ base_url() }}index.php/cldirectors/director_approval" class="card-link text-danger">{{ stat[constant('TF_STATUS_DIRECTOR_APPROVAL')] }}</a></h1>
+                </div>
+            </div>
+            <div class="card border-finance">
+                <div class="card-header bg-finance text-white"><h5>{{ lang('status_returned') }}</h5></div>
+                <div class="card-body">
+                    <h1 class="card-title font-weight-bold large-size"><a href="{{ base_url() }}index.php/cldirectors/returned" class="card-link text-finance">{{ stat[constant('TF_STATUS_RETURNED_TO_CLAIM')] }}</a></h1>
+                </div>
+            </div>
+        </div>
+        <div class="card-deck mx-auto text-center">
+            <div class="card border-dark">
+                <div class="card-header bg-dark text-white"><h5>{{ lang('menu_debt') }}</h5></div>
+                <div class="card-body">
+                    <h1 class="card-title font-weight-bold large-size"><a href="{{ base_url() }}index.php/debt" class="card-link text-dark">VND {{ balance_debt|number_format }}</a></h1>
+                </div>
+            </div>
+        </div>
+        <h3>{{ lang('cldirectors_stats_rejected') }}</h3>
+        <div class="card-deck mx-auto text-center">
+            <div class="card border-primary">
+                <div class="card-header bg-primary text-white"><h5>{{ lang('status_leader_rejected') }}</h5></div>
+                <div class="card-body">
+                    <h1 class="large-size"><a href="{{ base_url() }}index.php/cldirectors/leader_rejected" class="card-link text-primary">{{ stat[constant('TF_STATUS_LEADER_REJECTED')] }}</a></h1>
+                </div>
+            </div>
+            <div class="card border-primary">
+                <div class="card-header bg-primary text-white"><h5>{{ lang('status_manager_rejected') }}</h5></div>
+                <div class="card-body">
+                    <h1 class="large-size"><a href="{{ base_url() }}index.php/cldirectors/manager_rejected" class="card-link text-primary">{{ stat[constant('TF_STATUS_MANAGER_REJECTED')] }}</a></h1>
+                </div>
+            </div>
+            <div class="card border-primary">
+                <div class="card-header bg-primary text-white"><h5>{{ lang('status_director_rejected') }}</h5></div>
+                <div class="card-body">
+                    <h1 class="large-size"><a href="{{ base_url() }}index.php/cldirectors/director_rejected" class="card-link text-primary">{{ stat[constant('TF_STATUS_DIRECTOR_REJECTED')] }}</a></h1>
+                </div>
+            </div>
+        </div>
+        <h3>{{ lang('cldirectors_stats_approval') }}</h3>
+        <div class="card-deck mx-auto text-center">
+            <div class="card border-primary">
+                <div class="card-header bg-primary text-white"><h5>{{ lang('status_new') }}</h5></div>
+                <div class="card-body">
+                    <h1 class="large-size"><a href="{{ base_url() }}index.php/cldirectors/new" class="card-link text-primary">{{ stat[constant('TF_STATUS_NEW')] }}</a></h1>
+                </div>
+            </div>
+            <div class="card border-leader">
+                <div class="card-header bg-leader text-white"><h5>{{ lang('status_leader_approval') }}</h5></div>
+                <div class="card-body">
+                    <h1 class="large-size"><a href="{{ base_url() }}index.php/cldirectors/leader_approval" class="card-link text-leader">{{ stat[constant('TF_STATUS_LEADER_APPROVAL')] }}</a></h1>
+                </div>
+            </div>
+            <div class="card border-danger">
+                <div class="card-header bg-danger text-white"><h5>{{ lang('status_manager_approval') }}</h5></div>
+                <div class="card-body">
+                    <h1 class="large-size"><a href="{{ base_url() }}index.php/cldirectors/manager_approval" class="card-link text-danger">{{ stat[constant('TF_STATUS_MANAGER_APPROVAL')] }}</a></h1>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+{% endblock %}
+
+{% block script %}
+<script type="text/javascript" src="{{ base_url() }}assets/js/docs.min.js"></script>
+<script>
+$( '#cldirectors-stats' ).addClass( 'active' );
+</script>
+{% endblock %}

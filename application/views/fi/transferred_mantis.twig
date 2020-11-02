@@ -1,0 +1,163 @@
+{% extends "skeleton.twig" %}
+
+{% block css %}
+<link href="{{ base_url() }}assets/css/bootstrap-select.min.css" rel="stylesheet">
+{% endblock %}
+
+{% block style %}
+.btn-excel {color: fff;background-color:#006622;border-color:#006622}
+{% endblock %}
+
+{% block body %}
+<div class="row my-3">
+    <div class="col-12">
+        <div class="card text-white bg-info">
+            <div class="card-header"><h4>{{ lang('menu_transferred_mantis') }}</h4></div>
+        </div>
+        <div class="alert alert-info" role="alert">
+            <form class="was-validated" role="form" enctype="multipart/form-data" method="post">
+                <div class="form-row">
+                    <div class="form-group col-3">
+                        <label for="cl_no" class="col-form-label text-right"><b>{{ lang('col_cl_no') }}</b></label>
+                        <select class="selectpicker form-control" data-live-search="true" name="cl_no" id="cl_no" required>
+                            <option></option>
+                            {% for claim in claims %}
+                            <option data-tokens="{{ claim.CL_NO }}" value="{{ claim.CL_NO }}" {% if claim.CL_NO == post.cl_no %}selected{% endif %}>{{ claim.CL_NO }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-danger" name="btnSearch">{{ lang('search_btn') }}</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% if post %}
+<div class="row my-3">
+    <div class="col-12">
+        <div class="card border-info">
+            <div class="card-body table-responsive">
+                <table class="table table-sm table-hover table-striped table-bordered">
+                    <thead>
+                        <tr class="bg-info text-white">
+                            <th scope="col">#</th>
+                            <th scope="col">{{ lang('col_tf_amt') }}</th>
+                            <th scope="col">{{ lang('col_tf_status') }}</th>
+                            <th scope="col">{{ lang('col_tf_date') }}</th>
+                            <th scope="col">{{ lang('mti_tf_code') }}</th>
+                            <th scope="col">{{ lang('mti_refund_date') }}</th>
+                            <th scope="col">{{ lang('mti_refund_code') }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in transfers %}
+                            {% set bg_color = 'text-danger' %}
+                            {% if row.TRAN_STATUS == 'Transferred' %}
+                                {% set bg_color = 'text-success' %}
+                            {% elseif row.TRAN_STATUS == 'Closed' %}
+                                {% set bg_color = 'bg-danger text-white' %}
+                            {% endif %}
+                        <tr class="{{ bg_color }}">
+                            <th>{{ loop.index }}</th>
+                            <th>{{ row.TF_AMT|number_format }} {% if row.DEBT_BALANCE %}<span class="text-danger">(-{{ row.DEBT_BALANCE|number_format }})</span>{% endif %}</th>
+                            <td>{{ row.TRAN_STATUS }}</td>
+                            <td>{{ row.TF_DATE|date('d/m/Y') }}</td>
+                            <td>{{ row.TF_VCB_SEQ }}</td>
+                            <td>{% if row.REFUND_DATE %}{{ row.REFUND_DATE|date('d/m/Y') }}{% endif %}</td>
+                            <td>{{ row.REFUND_VCB_SEQ }}</td>
+                        </tr>
+                        <tr class="{{ bg_color }}">
+                            <td colspan="7">
+                            {% if row.PAYMENT_METHOD == 'TT' %}
+                                {{ lang('mti_details_tt')|format(row.ACCT_NAME, row.ACCT_NO, row.BANK_NAME, row.BANK_BRANCH, row.BANK_CITY) }}
+                            {% elseif row.PAYMENT_METHOD == 'CH' %}
+                                {{ lang('mti_details_ch')|format(row.BANK_NAME, row.BANK_BRANCH, row.BANK_CITY, row.PP_NO, row.BENEFICIARY_NAME, row.PP_DATE|date('d/m/Y'), row.PP_PLACE) }}
+                            {% elseif row.PAYMENT_METHOD == 'CQ' %}
+                                {{ lang('mti_details_cq')|format(row.PP_NO, row.BENEFICIARY_NAME, row.PP_DATE|date('d/m/Y'), row.PP_PLACE) }}
+                            {% else %}
+                                {{ lang('mti_details_pp') }}
+                            {% endif %}
+                            {% if row.MDTC %}
+                                {{ lang('mti_mdtc')|format(row.MDTC) }}
+                            {% endif %}
+                            {% if row.REFUND_DATE %}
+                                {{ lang('mti_refund_reason')|format(row.REFUND_REASON) }}
+                            {% endif %}
+                            {% if row.TRAN_STATUS == 'Closed' %}
+                                {{ lang('mti_closed') }}
+                            {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% set last_row = transfers|last %}
+                {% if last_row.TRAN_STATUS == 'Transferred' %}
+                <a href="#" class="btn btn-danger" data-toggle="modal" data-target="#decr_amt">
+                    <i class="fas fa-dollar-sign"></i> {{ lang('mti_decr_amt') }}
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="decr_amt" tabindex="-1" role="dialog" aria-labelledby="confirmTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title text-danger" id="confirmTitle">{{ lang('mti_decr_amt') }}</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form class="was-validated" role="form" enctype="multipart/form-data" method="post">
+                <div class="modal-body">
+                    <div class="form-group row">
+                        <label for="cl_no" class="col-5 col-form-label text-info">{{ lang('col_cl_no') }}</label>
+                        <div class="col-7">
+                            <input type="text" class="form-control text-right" name="cl_no" value="{{ post.cl_no }}" readonly>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="tf_amt" class="col-5 col-form-label text-info">{{ lang('col_tf_amt') }}</label>
+                        <div class="col-7">
+                            <input type="text" class="form-control text-right price" name="tf_amt" value="{{ last_row.TF_AMT }}" readonly>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="decr_amt" class="col-5 col-form-label text-info">{{ lang('col_decr_amt') }}</label>
+                        <div class="col-7 input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">-</span>
+                            </div>
+                            <input type="text" class="form-control text-right price" name="decr_amt" value="{{ last_row.DEBT_BALANCE }}" required>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ lang('fi_modal_no_btn') }}</button>
+                    <button type="submit" class="btn btn-danger" name="btnDecr">{{ lang('fi_modal_yes_btn') }}</button>
+                    <!-- Hidden -->
+                    <input type="hidden" name="tran_id" value="{{ last_row.TRAN_ID }}">
+                    <input type="hidden" name="paym_id" value="{{ last_row.PAYM_ID }}">
+                    <input type="hidden" name="prev_decr_amt" value="{{ last_row.DEBT_BALANCE|number_format }}">
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block script %}
+<script type="text/javascript" src="{{ base_url() }}assets/js/bootstrap-select.min.js"></script>
+<script type="text/javascript" src="{{ base_url() }}assets/js/jquery.price_format.2.0.js"></script>
+<script>
+$( '#fi-reports' ).addClass( 'active' );
+$( '.selectpicker' ).selectpicker();
+$( '.price' ).priceFormat( {
+    prefix: '',
+    centsLimit: 0,
+} );
+</script>
+{% endblock %}

@@ -1,0 +1,70 @@
+{% extends "skeleton.twig" %}
+
+{% block body_title %}
+<h1 class="text-success">{{ lang('create_user_title') }}</h1>
+{% endblock %}
+
+{% block body %}
+<div class="row my-3">
+    <div class="col-12">
+        <div class="card border-info">
+            <div class="card card-header">
+                <form class="was-validated" role="form" enctype="multipart/form-data" method="post">
+                    <div class="form-row">
+                        <div class="form-group col-6">
+                            <div class="row">
+                                <label for="user_name" class="col-sm-3 col-form-label text-right">{{ lang('user_name') }}</label>
+                                <div class="col-9">
+                                    <input type="text" class="form-control" id="user_name" name="user_name" required>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group col-6">
+                            <div class="row">
+                                <label for="fullname" class="col-3 col-form-label text-right">{{ lang('user_fullname') }}</label>
+                                <div class="col-9">
+                                    <input type="text" class="form-control" id="fullname" name="fullname" required>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-6">
+                            <div class="row">
+                                <label for="email" class="col-3 col-form-label text-right">{{ lang('user_email') }}</label>
+                                <div class="col-9">
+                                    <input type="email" class="form-control" id="email" name="email" value="{{ user.EMAIL }}" required>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group col-6">
+                            <div class="row">
+                                <label for="role" class="col-3 col-form-label text-right">{{ lang('user_role') }}</label>
+                                <div class="col-9">
+                                    <select id="role_id" name="role_id" class="form-control" required>
+                                        <option></option>
+                                        {% for role in roles %}
+                                            <option value="{{ role.ROLE_ID }}" {% if user.ROLE_ID == role.ROLE_ID %} selected {% endif %}>{{ role.ROLE_DESC }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-check"></i> {{ lang('user_btn_create') }}</button>
+                    <a href="{{ base_url() }}index.php/users" class="btn btn-danger" role="button" aria-pressed="true"><i class="fas fa-times"></i> {{ lang('user_btn_cancel') }}</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block script %}
+<script>
+$( document ).ready( function() {
+    // menu active
+    $( '#users' ).addClass( 'active' );
+} );
+</script>
+{% endblock %}

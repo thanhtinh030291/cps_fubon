@@ -1,0 +1,348 @@
+{% extends "skeleton.twig" %}
+
+{% block css %}
+<link href="{{ base_url() }}assets/css/datatables.min.css" rel="stylesheet">
+{% endblock %}
+
+{% block style %}
+.btn-excel {color: fff;background-color:#006622;border-color:#006622}
+{% endblock %}
+
+{% block body %}
+<div class="row my-3">
+    <div class="col-12">
+        <div class="card text-white bg-info">
+            <div class="card-header"><h4>{{ lang('menu_claim_fund') }}</h4></div>
+        </div>
+        <div class="alert alert-info" role="alert">
+            <form id="claim_fund" class="was-validated" role="form" enctype="multipart/form-data" method="post">
+                <div class="form-row">
+                    <div class="form-group col-3">
+                        <label for="time" class="col-form-label text-right"><b>{{ lang('cf_list') }}</b></label>
+                        <select class="form-control" name="time" id="time" required>
+                            <option></option>
+                            {% for report in reports %}
+                            <option value="{{ report.CLFU_MON_YEAR }}" {% if post.time == report.CLFU_MON_YEAR %}selected{% endif %}>{{ report.CLFU_MON_YEAR }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-danger" name="btnSearch">{{ lang('search_btn') }}</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% if post %}
+<div class="row my-3">
+    <div class="col-12">
+        <div class="card border-primary">
+            <div class="card-header text-primary text-center">
+                <h3>{{ lang('cf_report_title') }}</h3>
+                <h6 class="card-subtitle text-muted">{{ lang('cf_report_desc')|format(date_from, date_to) }}</h6>
+            </div>
+            <div class="card-body table-responsive">
+                {% if details %}
+                <table class="table table-sm table-hover table-striped table-bordered">
+                    <thead class="text-center">
+                        <tr class="bg-info text-white">
+                            <th scope="col" rowspan="2" class="align-middle">{{ lang('col_cf_date') }}</th>
+                            <th scope="colgroup" colspan="2">{{ lang('col_cf_voucher_no') }}</th>
+                            <th scope="colgroup" colspan="2">{{ lang('col_cf_claim_information') }}</th>
+                            <th scope="colgroup" class="align-middle">{{ lang('col_cf_description') }}</th>
+                            <th scope="colgroup" class="align-middle" colspan="5">{{ lang('col_cf_amount') }}</th>
+                        </tr>
+                        <tr class="bg-info text-white">
+                            <th scope="col">{{ lang('col_cf_bank_no') }}</th>
+                            <th scope="col">{{ lang('col_cf_cash') }}</th>
+                            <th scope="col">{{ lang('col_cf_policy_number') }}</th>
+                            <th scope="col">{{ lang('col_cf_claim_number') }}</th>
+                            <th></th>
+                            <th scope="col">{{ lang('col_cf_replenishment') }}</th>
+                            <th scope="col">{{ lang('col_cf_refund') }}</th>
+                            <th scope="col">{{ lang('col_cf_claim_payment') }}</th>
+                            <th scope="col">{{ lang('col_cf_repaid_refund_claim') }}</th>
+                            <th scope="col">{{ lang('col_cf_balance') }}</th>
+                        </tr>
+                        <tr class="bg-info text-white">
+                        {% for i in 1..11 %}
+                            <th scope="col">{{ i }}</th>
+                        {% endfor %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if set_bebal or set_prev_enbal %}
+                        <tr class="bg-danger">
+                        {% for i in 1..11 %}
+                            {% if i == 6 %}
+                            <th class="text-center">
+                                {% if set_bebal %}
+                                <a class="text-white" href="#" data-toggle="modal" data-target="#set_bebal">{{ lang('cf_set_bebal_btn') }}</a>
+                                {% else %}
+                                <a class="text-white" href="#" data-toggle="modal" data-target="#set_prev_enbal">{{ lang('cf_set_prev_enbal_btn') }}</a>
+                                {% endif %}
+                            </th>
+                            {% else %}
+                            <td></td>
+                            {% endif %}
+                        {% endfor %}
+                        </tr>
+                        {% else %}
+                        <tr>
+                            {% for i in 1..5 %}
+                            <td></td>
+                            {% endfor %}
+                            <th class="text-center">{{ lang('cf_beginning_balance') }}</th>
+                            <th class="text-right">{{ bebal.CLFF_END_REPL|number_format }}</th>
+                            <th class="text-right">{{ bebal.CLFF_END_REFU|number_format }}</th>
+                            <td></td>
+                            <td></td>
+                            <th class="text-right">{{ bebal.CLFF_END_BALA|number_format }}</th>
+                        </tr>
+                        {% endif %}
+                        {% if not (set_bebal and set_prev_enbal) %}
+                            {% set balance = bebal.CLFF_END_BALA %}
+                        {% endif %}
+                        {% for row in details %}
+                            {% if not (set_bebal and set_prev_enbal) %}
+                                {% set balance = balance + row.BALANCE %}
+                            {% endif %}
+                        <tr>
+                            <td>{{ row.TF_DATE|date('d/m/Y') }}</td>
+                            <td>{{ row.VCB_SEQ }}</td>
+                            <td>{{ row.PCV_SEQ }}</td>
+                            <td>{{ row.POCY_REF_NO }}</td>
+                            <td>{{ row.CL_NO }}</td>
+                            <td>{{ row.DESCRIPTION }}</td>
+                            <td class="text-right">
+                                {% if row.REPLENISHMENT %}
+                                    {{ row.REPLENISHMENT|number_format }}
+                                {% endif %}
+                            </td>
+                            <td class="text-right">
+                                {% if row.REFUND %}
+                                    {{ row.REFUND|number_format }}
+                                {% endif %}
+                            </td>
+                            <td class="text-right">
+                                {% if row.TF_AMT %}
+                                    {{ row.TF_AMT|number_format }}
+                                {% endif %}
+                            </td>
+                            <td class="text-right">
+                                {% if row.REPAID_REFUND %}
+                                    {{ row.REPAID_REFUND|number_format }}
+                                {% endif %}
+                            </td>
+                            {% if set_bebal or set_prev_enbal %}
+                            <td class="bg-danger"></td>
+                            {% else %}
+                            <td class="text-right">{{ balance|number_format }}</td>
+                            {% endif %}
+                        </tr>
+                        {% endfor %}
+                        <tr>
+                        {% for i in 1..5 %}
+                            <td></td>
+                        {% endfor %}
+                            <th class="text-center">{{ lang('cf_total') }}</th>
+                            <th class="text-right">{{ total.REPLENISHMENT|number_format }}</th>
+                            <th class="text-right">{{ total.REFUND|number_format }}</th>
+                            <th class="text-right">{{ total.TF_AMT|number_format }}</th>
+                            <th class="text-right">{{ total.REPAID_REFUND|number_format }}</th>
+                            <td></td>
+                        </tr>
+                        <tr>
+                        {% for i in 1..5 %}
+                            <td></td>
+                        {% endfor %}
+                            <th class="text-center">{{ lang('cf_ending_balance') }}</th>
+                        {% for i in 1..4 %}
+                            <td></td>
+                        {% endfor %}
+                        {% if set_bebal or set_prev_enbal %}
+                            <th class="bg-danger"></th>
+                        {% else %}
+                            <th class="text-right">{{ balance|number_format }}</th>
+                        {% endif %}
+                        </tr>
+                        <tr>
+                        {% for i in 1..4 %}
+                            <td></td>
+                        {% endfor %}
+                            <td>{{ lang('cf_ending_include') }}</td>
+                            <th class="text-center">{{ lang('cf_ending_refund') }}</th>
+                        {% for i in 1..4 %}
+                            <td></td>
+                        {% endfor %}
+                        {% if set_bebal or set_prev_enbal %}
+                            <th class="bg-danger"></th>
+                        {% else %}
+                            {% set ending_refund = bebal.CLFF_END_REFU + total.REFUND - total.REPAID_REFUND %}
+                            <th class="text-right">{{ ending_refund|number_format }}</th>
+                        {% endif %}
+                        </tr>
+                        <tr>
+                        {% for i in 1..5 %}
+                            <td></td>
+                        {% endfor %}
+                            <th class="text-center">{{ lang('cf_ending_claim') }}</th>
+                        {% for i in 1..4 %}
+                            <td></td>
+                        {% endfor %}
+                        {% if set_bebal or set_prev_enbal %}
+                            <th class="bg-danger"></th>
+                        {% else %}
+                            {% set ending_claim = bebal.CLFF_END_REPL + total.REPLENISHMENT - total.TF_AMT %}
+                            <th class="text-right">{{ ending_claim|number_format }}</th>
+                        {% endif %}
+                        </tr>
+                    </tbody>
+                    {% if set_enbal %}
+                    <tfoot>
+                        <tr class="bg-danger">
+                        {% for i in 1..11 %}
+                            {% if i == 6 %}
+                            <th class="text-center">
+                                <a class="text-white" href="#" data-toggle="modal" data-target="#set_enbal"><i class="fas fa-lock"></i> {{ lang('cf_set_enbal_btn')|format(post.time) }}</a>
+                            </th>
+                            {% else %}
+                            <td></td>
+                            {% endif %}
+                        {% endfor %}
+                        </tr>
+                    </tfoot>
+                    {% endif %}
+                </table>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+<div class="modal fade" id="set_bebal" tabindex="-1" role="dialog" aria-labelledby="confirmTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title text-danger" id="confirmTitle">{{ lang('cf_set_bebal_title')|format(post.time) }}</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form class="was-validated" role="form" enctype="multipart/form-data" method="post" action="{{ base_url() }}index.php/fi/set_bebal">
+                <div class="modal-body">
+                    <div class="form-group row">
+                        <label for="bebal_repl" class="col-5 col-form-label text-info"><b>{{ lang('cf_ton_repl') }}</b></label>
+                        <div class="col-7">
+                            <input type="text" id="bebal_repl" class="form-control price" name="bebal_repl" autocomplete="off" required>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="bebal_refund" class="col-5 col-form-label text-info"><b>{{ lang('cf_ton_refund') }}</b></label>
+                        <div class="col-7">
+                            <input type="text" id="bebal_refund" class="form-control price" name="bebal_refund" autocomplete="off" required>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ lang('fi_modal_no_btn') }}</button>
+                    <button type="submit" class="btn btn-danger">{{ lang('fi_modal_yes_btn') }}</button>
+                </div>
+                <!-- Hidden -->
+                <input type="hidden" name="time" value="{{ post.time }}">
+                <input type="hidden" name="prev_time" value="{{ prev_time }}">
+            </form>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="set_prev_enbal" tabindex="-1" role="dialog" aria-labelledby="confirmTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title text-danger" id="confirmTitle">{{ lang('cf_set_prev_enbal_title') }}</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <h5 class="text-primary">{{ lang('cf_set_prev_enbal_desc')|format(prev_time) }}</h5>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ lang('fi_modal_no_btn') }}</button>
+                <form role="form" enctype="multipart/form-data" method="post">
+                    <button type="submit" class="btn btn-danger" name="btnSearch">{{ lang('fi_modal_yes_btn') }}</button>
+                    <!-- Hidden -->
+                    <input type="hidden" name="time" value="{{ prev_time }}">
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="set_enbal" tabindex="-1" role="dialog" aria-labelledby="confirmTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title text-danger" id="confirmTitle">{{ lang('cf_set_enbal_btn')|format(post.time) }}</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form class="was-validated" role="form" enctype="multipart/form-data" method="post" action="{{ base_url() }}index.php/fi/set_enbal">
+                <div class="modal-body">
+                    <div class="form-group row">
+                        <label class="col-5 col-form-label text-info"><b>{{ lang('cf_ton_repl') }}</b></label>
+                        <div class="col-7">
+                            <input type="text" class="form-control text-right price" value="{{ ending_claim }}" disabled>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-5 col-form-label text-info"><b>{{ lang('cf_ton_refund') }}</b></label>
+                        <div class="col-7">
+                            <input type="text" class="form-control text-right price" value="{{ ending_refund }}" disabled>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ lang('fi_modal_no_btn') }}</button>
+                    <button type="submit" class="btn btn-danger">{{ lang('fi_modal_yes_btn') }}</button>
+                </div>
+                <!-- Hidden -->
+                <input type="hidden" name="time" value="{{ post.time }}">
+                <input type="hidden" name="enbal_repl" value="{{ ending_claim }}">
+                <input type="hidden" name="enbal_refund" value="{{ ending_refund }}">
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block script %}
+<script type="text/javascript" src="{{ base_url() }}assets/js/jquery.price_format.2.0.js"></script>
+<script type="text/javascript" src="{{ base_url() }}assets/js/datatables.min.js"></script>
+<script>
+$( '#fi-reports' ).addClass( 'active' );
+$( '.table' ).DataTable( {
+    lengthChange: false,
+    order: false,
+    paging: false,
+    dom: "<'row'<'col-9'B><'col-3'f>>" +
+         "<'row'<'col-12'tr>>" +
+         "<'row'<'col-5'i><'col-7'p>>",
+    buttons: [
+        {% if not (set_bebal and set_prev_enbal) %}
+        {
+            text: 'Excel',
+            className: 'btn btn-excel',
+            action: function ( e, dt, node, config ) {
+                $( '#claim_fund' ).submit();
+            }
+        }
+        {% endif %}
+    ]
+} );
+$( '.price' ).priceFormat( {
+    prefix: '',
+    centsLimit: 0,
+    allowNegative: true
+} );
+</script>
+{% endblock %}

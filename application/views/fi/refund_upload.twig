@@ -1,0 +1,70 @@
+{% extends "skeleton.twig" %}
+
+{% block body %}
+<div class="row my-3">
+    <div class="col-12">
+        <div class="card border-primary mb-3">
+            <div class="card-header text-primary">
+                <form class="was-validated" role="form" enctype="multipart/form-data" method="post">
+                    <div class="form-row">
+                        <div class="form-group col-8">
+                            <div class="custom-file">
+                                <input type="file" accept=".xlsx" class="custom-file-input" id="returned_xlsx" name="returned_xlsx" required>
+                                <label class="custom-file-label" for="returned_xlsx">{{ lang('fi_refund_upload_choose_file') }}</label>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <button type="submit" class="btn btn-danger" name="btnUpload"><i class="fas fa-undo"></i> {{ lang('fi_refund_btn') }}</button>
+                        </div>
+                    </div>
+                    <div class="form-row text-dark">{{ lang('fi_refund_upload_note') }}
+                    </div>
+                </form>
+            </div>
+            <div class="card-body table-responsive">
+                <table class="table table-hover table-striped table-bordered">
+                    <thead>
+                        <tr class="bg-info text-white">
+                            <th scope="col">{{ lang('col_cl_no') }}</th>
+                            <th scope="col">{{ lang('col_tf_amt') }}</th>
+                            <th scope="col">{{ lang('fi_refund_date') }}</th>
+                            <th scope="col">{{ lang('fi_refund_vcb_seq') }}</th>
+                            <th scope="col">{{ lang('fi_refund_reason') }}</th>
+                            {% if sheetData %}
+                            <th scope="col">{{ lang('fi_upload_result') }}</th>
+                            {% endif %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for id, row in sheetData if id > 1 %}
+                        <tr>
+                            <th class="text-right">{{ row.A }}</th>
+                            <td>{{ row.B }}</td>
+                            <td>{{ row.C }}</td>
+                            <td>{{ row.D }}</td>
+                            <td>{{ row.E }}</td>
+                            <td>{{ row.F }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block script %}
+<script>
+$('#fi-transferred-refund').addClass('active');
+$('#returned_xlsx').on('change', function() {
+    var ext = this.value.match( /\.([^\.]+)$/ )[ 1 ];
+    if (ext != 'xlsx') {
+        alert('not allowed');
+        this.value='';
+    } else {
+        $(this).next('.custom-file-label').html(document.getElementById('returned_xlsx').files[0].name);
+    }
+});
+</script>
+{% endblock %}

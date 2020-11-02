@@ -1,0 +1,193 @@
+{% extends "skeleton.twig" %}
+
+{% block css %}
+<link href="{{ base_url() }}assets/css/datatables.min.css" rel="stylesheet">
+<link href="{{ base_url() }}assets/css/bootstrap-select.min.css" rel="stylesheet">
+{% endblock %}
+
+{% block body_title %}
+<h1 class="text-primary">Payment Upload and Settlement</h1>
+{% endblock %}
+
+{% block body %}
+<div class="row my-3">
+    <div class="col-12">
+        <div class="card border-primary mb-3">
+            <div class="alert alert-info" role="alert">
+                <p class="mb-0"><span class="text-danger">Input:</span> <b>Payment.xlsx</b></p>
+                <div class="table-responsive">
+                    <table class="table table-bordered bg-light">
+                        <tr class="text-center">
+                            <th><span class="text-primary">A</span> - Policy No</th>
+                            <th><span class="text-primary">B</span> - Policy Ref No</th>
+                            <th><span class="text-primary">C</span> - Debit Note No</th>
+                            <th><span class="text-primary">D</span> - Generate Receipt To</th>
+                            <th><span class="text-primary">E</span> - Received Date</th>
+                            <th><span class="text-primary">F</span> - Payment Method</th>
+                            <th><span class="text-primary">G</span> - Payment CCY</th>
+                        </tr>
+                        <tr class="text-center">
+                            <th><span class="text-primary">H</span> - Received Amount</th>
+                            <th><span class="text-primary">I</span> - FX Rate</th>
+                            <th><span class="text-primary">J</span> - Deduct At Source</th>
+                            <th><span class="text-primary">K</span> - Bank Charge CCY</th>
+                            <th><span class="text-primary">L</span> - Bank Charge Amount</th>
+                            <th><span class="text-primary">M</span> - Remarks</th>
+                            <th><span class="text-primary">N</span> - Setting Amount</th>
+                        </tr>
+                    </table>
+                </div>
+                <p class="mb-0"><span class="text-danger">Output:</span> <b>Payment.csv</b></p>
+                <p class="mb-0"><span class="text-danger">Purpose:</span> Convert to csv file to Upload to HBS Settlement - Payment Upload and Settlement</p>
+            </div>
+            <div class="alert alert-info" role="alert">
+                <form class="was-validated" role="form" enctype="multipart/form-data" method="post">
+                    <div class="form-row">
+                        <div class="form-group col-3">
+                            <select class="selectpicker form-control" data-live-search="true" name="crt_date" id="crt_date" required>
+                                <option value="">Select Upload Date</option>
+                                {% for row in list_of_upload %}
+                                <option data-tokens="{{ row.CRT_DATE }}" value="{{ row.CRT_DATE }}" {% if row.CRT_DATE == crt_date %}selected{% endif %}>{{ row.CRT_DATE }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-4">
+                            <button type="submit" class="btn btn-danger" name="btnSubmit">Submit</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="alert alert-warning" role="alert">
+                <form class="was-validated" role="form" enctype="multipart/form-data" method="post" action="{{ base_url() }}index.php/settle/upload">
+                    <div class="form-row">
+                        <div class="form-group col-6 mb-0">
+                            <div class="custom-file">
+                                <input type="file" accept=".xlsx" class="custom-file-input" id="Pay" name="Pay" required>
+                                <label class="custom-file-label" for="Pay">Choose file</label>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <button type="submit" class="btn btn-primary" name="btnUpload">Upload</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% if data %}
+    <div class="col-12">
+        <div class="card border-primary mb-3">
+            <div class="card-body table-responsive">
+                <table class="table table-sm table-hover table-striped table-bordered" id="pay2set">
+                    <thead>
+                        <tr class="bg-info text-white">
+                            <th scope="col">Policy No</th>
+                            <th scope="col">Policy Ref No</th>
+                            <th scope="col">Debit Note No</th>
+                            <th scope="col">Generate Receipt To</th>
+                            <th scope="col">Received Date</th>
+                            <th scope="col">Payment Method</th>
+                            <th scope="col">Payment CCY</th>
+                            <th scope="col">Received Amount</th>
+                            <th scope="col">FX Rate</th>
+                            <th scope="col">Deduct At Source</th>
+                            <th scope="col">Bank Charge CCY</th>
+                            <th scope="col">Bank Charge Amount</th>
+                            <th scope="col">Remarks</th>
+                            <th scope="col">Setting Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in data %}
+                        <tr>
+                            <td>{{ row.POCY_NO }}</td>
+                            <td>{{ row.POCY_REF_NO }}</td>
+                            <td>{{ row.DEBIT_NOTE_NO }}</td>
+                            <td>{{ row.GENERATE_RECEIPT_TO }}</td>
+                            <td>{{ row.RECEIVED_DATE }}</td>
+                            <td>{{ row.PAYMENT_METHOD }}</td>
+                            <td>{{ row.PAYMENT_CCY }}</td>
+                            <td>{{ row.RECEIVED_AMOUNT }}</td>
+                            <td>{{ row.FX_RATE }}</td>
+                            <td>{{ row.DEDUCT_AT_SOURCE }}</td>
+                            <td>{{ row.BANK_CHARGE_CCY }}</td>
+                            <td>{{ row.BANK_CHARGE_AMOUNT }}</td>
+                            <td>{{ row.REMARKS }}</td>
+                            <td>{{ row.SETTLING_AMOUNT }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <th colspan="14" class="text-primary">
+                                <form class="was-validated" role="form" enctype="multipart/form-data" method="post" action="{{ base_url() }}index.php/settle/find_note_no">
+                                    <button type="submit" class="btn btn-primary" name="btnUpload"><i class="fas fa-search-dollar"></i> Find Debit Note No</button>
+                                    <!-- Hidden -->
+                                    <input type="hidden" name="crt_date" value="{{ crt_date }}">
+                                </form>
+                            </th>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+            {% if settle_note %}
+            <div class="card-footer table-responsive">
+                <table class="table table-sm table-hover table-striped table-bordered" id="settle_note">
+                    <thead>
+                        <tr class="bg-info text-white">
+                            <th scope="col">Policy Ref No</th>
+                            <th scope="col">Amount</th>
+                            <th scope="col">Debit Note No</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in settle_note %}
+                        <tr>
+                            <td>{{ row.POCY_REF_NO }}</td>
+                            <td>{{ row.AMT }}</td>
+                            <td>{{ row.NOTE_NO }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block script %}
+<script type="text/javascript" src="{{ base_url() }}assets/js/datatables.min.js"></script>
+<script type="text/javascript" src="{{ base_url() }}assets/js/bootstrap-select.min.js"></script>
+<script>
+$('#Pay').on('change', function() {
+    var ext = this.value.match(/\.([^\.]+)$/)[1];
+    if (ext != 'xlsx') {
+        alert('not allowed');
+        this.value='';
+    } else {
+        $(this).next('.custom-file-label').html(document.getElementById('Pay').files[0].name);
+    }
+});
+$('#pay2set').DataTable( {
+    lengthChange: false,
+    ordering: false,
+    dom: "<'row'<'col-9'B><'col-3'f>>" +
+         "<'row'<'col-12'tr>>" +
+         "<'row'<'col-5'i><'col-7'p>>",
+    buttons: [
+        {
+          extend: 'csvHtml5',
+          fieldBoundary: ''
+        }
+    ]
+} );
+$('#settle_note').DataTable( {
+    lengthChange: false,
+    paging: false,
+} );
+$('.selectpicker').selectpicker();
+</script>
+{% endblock %}

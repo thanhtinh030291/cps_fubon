@@ -1,0 +1,355 @@
+<?php
+/**
+ * This view is parent template of all other views.
+ * @since      0.1.0
+ */
+?>
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="version" content="0.1.0">
+    <title>{{ lang('menu_title') }}</title>
+    <meta description="{{ lang('menu_desc') }}">
+    <link href="{{ base_url() }}assets/css/bootstrap.min.css" rel="stylesheet">
+    <link href="{{ base_url() }}assets/css/fontawesome.min.css" rel="stylesheet">
+    <link href="{{ base_url() }}assets/css/docs.min.css" rel="stylesheet">
+    <link href="{{ base_url() }}assets/css/mystyle.css" rel="stylesheet">
+    {% block css %}{% endblock %}
+    <link rel="icon" type="image/x-icon" href="{{ base_url() }}favicon.ico" sizes="32x32">
+</head>
+<style>
+    {% block style %}{% endblock %}
+</style>
+<body>
+    {% block menu %}
+    <nav class="navbar navbar-expand navbar-dark flex-column flex-md-row bd-navbar bg-secondary">
+        <a class="navbar-brand mr-0 mr-md-2" href="{{ base_url() }}">
+            <img src="{{ base_url() }}assets/img/brand.png" height="40" style="margin-top:-3px;">
+        </a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCPS" aria-controls="navbarCPS" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="navbar-nav-scroll" id="navbarCPS">
+            <ul class="navbar-nav bd-navbar-nav flex-row">
+                {% if role_id == constant('ROLE_IT') %}
+                <li class="nav-item" id="users">
+                    <a class="nav-link" href="{{ base_url() }}index.php/users">
+                        <i class="fas fa-users"></i>
+                        {{ lang('menu_users') }}
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ base_url() }}index.php/settings">
+                        <i class="fas fa-cog"></i>
+                        {{ lang('menu_settings') }}
+                    </a>
+                </li>
+                {% endif %}
+                {% if role_id == constant('ROLE_CL_USER') %}
+                <li class="nav-item" id="clusers-stats">
+                    <a class="nav-link" href="{{ base_url() }}index.php/clusers">
+                        <i class="fas fa-home"></i>
+                        {{ lang('menu_stats') }}
+                        <span class="sr-only">(current)</span>
+                    </a>
+                </li>
+                <li class="nav-item dropdown" id="clusers-claim">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="fas fa-user-check"></i>
+                        {{ lang('menu_claim') }}
+                    </a>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item text-primary" href="{{ base_url() }}index.php/clusers/new"><i class="fas fa-check"></i> {{ lang('status_new') }}</a>
+                        <a class="dropdown-item text-finance" href="{{ base_url() }}index.php/clusers/returned"><i class="fas fa-check"></i> {{ lang('status_returned') }}</a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item text-primary" href="{{ base_url() }}index.php/clusers/leader_rejected"><i class="fas fa-check"></i> {{ lang('status_leader_rejected') }}</a>
+                        <a class="dropdown-item text-primary" href="{{ base_url() }}index.php/clusers/manager_rejected"><i class="fas fa-check"></i> {{ lang('status_manager_rejected') }}</a>
+                        <a class="dropdown-item text-primary" href="{{ base_url() }}index.php/clusers/director_rejected"><i class="fas fa-check"></i> {{ lang('status_director_rejected') }}</a>
+                    </div>
+                </li>
+                <li class="nav-item dropdown" id="clusers-approval">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="fas fa-user-clock"></i>
+                        {{ lang('menu_claim_approval') }}
+                    </a>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item text-leader" href="{{ base_url() }}index.php/clusers/leader_approval"><i class="fas fa-check"></i> {{ lang('status_leader_approval') }}</a>
+                        <a class="dropdown-item text-danger" href="{{ base_url() }}index.php/clusers/manager_approval"><i class="fas fa-check"></i> {{ lang('status_manager_approval') }}</a>
+                        <a class="dropdown-item text-director" href="{{ base_url() }}index.php/clusers/director_approval"><i class="fas fa-check"></i> {{ lang('status_director_approval') }}</a>
+                    </div>
+                </li>
+                <li class="nav-item dropdown" id="menu-debt">
+                    <a class="nav-link" href="{{ base_url() }}index.php/debt">
+                        <i class="fas fa-list"></i>
+                        {{ lang('menu_debt') }}
+                    </a>
+                </li>
+                {% endif %}
+                {% if role_id == constant('ROLE_CL_LEADER') %}
+                <li class="nav-item" id="clleaders-stats">
+                    <a class="nav-link" href="{{ base_url() }}index.php/clleaders">
+                        <i class="fas fa-home"></i>
+                        {{ lang('menu_stats') }}
+                        <span class="sr-only">(current)</span>
+                    </a>
+                </li>
+                <li class="nav-item dropdown" id="clleaders-claim">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="fas fa-user-check"></i>
+                        {{ lang('menu_claim') }}
+                    </a>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item text-leader" href="{{ base_url() }}index.php/clleaders/leader_approval"><i class="fas fa-check"></i> {{ lang('status_leader_approval') }}</a>
+                        <a class="dropdown-item text-finance" href="{{ base_url() }}index.php/clleaders/returned"><i class="fas fa-check"></i> {{ lang('status_returned') }}</a>
+                    </div>
+                </li>
+                <li class="nav-item dropdown" id="clleaders-team">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="fas fa-users"></i>
+                        {{ lang('menu_team') }}
+                    </a>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item text-primary" href="{{ base_url() }}index.php/clleaders/new"><i class="fas fa-check"></i> {{ lang('status_new') }}</a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item text-primary" href="{{ base_url() }}index.php/clleaders/leader_rejected"><i class="fas fa-check"></i> {{ lang('status_leader_rejected') }}</a>
+                        <a class="dropdown-item text-primary" href="{{ base_url() }}index.php/clleaders/manager_rejected"><i class="fas fa-check"></i> {{ lang('status_manager_rejected') }}</a>
+                        <a class="dropdown-item text-primary" href="{{ base_url() }}index.php/clleaders/director_rejected"><i class="fas fa-check"></i> {{ lang('status_director_rejected') }}</a>
+                    </div>
+                </li>
+                <li class="nav-item dropdown" id="clleaders-approval">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="fas fa-user-clock"></i>
+                        {{ lang('menu_claim_approval') }}
+                    </a>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item text-danger" href="{{ base_url() }}index.php/clleaders/manager_approval"><i class="fas fa-check"></i> {{ lang('status_manager_approval') }}</a>
+                        <a class="dropdown-item text-director" href="{{ base_url() }}index.php/clleaders/director_approval"><i class="fas fa-check"></i> {{ lang('status_director_approval') }}</a>
+                    </div>
+                </li>
+                <li class="nav-item dropdown" id="menu-debt">
+                    <a class="nav-link" href="{{ base_url() }}index.php/debt">
+                        <i class="fas fa-list"></i>
+                        {{ lang('menu_debt') }}
+                    </a>
+                </li>
+                {% endif %}
+                {% if role_id == constant('ROLE_CL_MANAGER') %}
+                <li class="nav-item" id="clmanagers-stats">
+                    <a class="nav-link" href="{{ base_url() }}index.php/clmanagers">
+                        <i class="fas fa-home"></i>
+                        {{ lang('menu_stats') }}
+                        <span class="sr-only">(current)</span>
+                    </a>
+                </li>
+                <li class="nav-item dropdown" id="clmanagers-claim">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="fas fa-user-check"></i>
+                        {{ lang('menu_claim') }}
+                    </a>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item text-danger" href="{{ base_url() }}index.php/clmanagers/manager_approval"><i class="fas fa-check"></i> {{ lang('status_manager_approval') }}</a>
+                        <a class="dropdown-item text-finance" href="{{ base_url() }}index.php/clmanagers/returned"><i class="fas fa-check"></i> {{ lang('status_returned') }}</a>
+                    </div>
+                </li>
+                <li class="nav-item dropdown" id="clmanagers-team">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="fas fa-users"></i>
+                        {{ lang('menu_team') }}
+                    </a>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item text-primary" href="{{ base_url() }}index.php/clmanagers/new"><i class="fas fa-check"></i> {{ lang('status_new') }}</a>
+                        <a class="dropdown-item text-leader" href="{{ base_url() }}index.php/clmanagers/leader_approval"><i class="fas fa-check"></i> {{ lang('status_leader_approval') }}</a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item text-primary" href="{{ base_url() }}index.php/clmanagers/leader_rejected"><i class="fas fa-check"></i> {{ lang('status_leader_rejected') }}</a>
+                        <a class="dropdown-item text-primary" href="{{ base_url() }}index.php/clmanagers/manager_rejected"><i class="fas fa-check"></i> {{ lang('status_manager_rejected') }}</a>
+                        <a class="dropdown-item text-primary" href="{{ base_url() }}index.php/clmanagers/director_rejected"><i class="fas fa-check"></i> {{ lang('status_director_rejected') }}</a>
+                    </div>
+                </li>
+                <li class="nav-item dropdown" id="clmanagers-approval">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="fas fa-user-clock"></i>
+                        {{ lang('menu_claim_approval') }}
+                    </a>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item text-director" href="{{ base_url() }}index.php/clmanagers/director_approval"><i class="fas fa-check"></i> {{ lang('status_director_approval') }}</a>
+                    </div>
+                </li>
+                <li class="nav-item dropdown" id="menu-debt">
+                    <a class="nav-link" href="{{ base_url() }}index.php/debt">
+                        <i class="fas fa-list"></i>
+                        {{ lang('menu_debt') }}
+                    </a>
+                </li>
+                {% endif %}
+                {% if role_id == constant('ROLE_CL_DIRECTOR') %}
+                <li class="nav-item" id="cldirectors-stats">
+                    <a class="nav-link" href="{{ base_url() }}index.php/cldirectors">
+                        <i class="fas fa-home"></i>
+                        {{ lang('menu_stats') }}
+                        <span class="sr-only">(current)</span>
+                    </a>
+                </li>
+                <li class="nav-item dropdown" id="cldirectors-claim">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="fas fa-user-check"></i>
+                        {{ lang('menu_claim') }}
+                    </a>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item text-director" href="{{ base_url() }}index.php/cldirectors/director_approval"><i class="fas fa-check"></i> {{ lang('status_director_approval') }}</a>
+                        <a class="dropdown-item text-finance" href="{{ base_url() }}index.php/cldirectors/returned"><i class="fas fa-check"></i> {{ lang('status_returned') }}</a>
+                    </div>
+                </li>
+                <li class="nav-item dropdown" id="cldirectors-team">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="fas fa-users"></i>
+                        {{ lang('menu_team') }}
+                    </a>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item text-primary" href="{{ base_url() }}index.php/cldirectors/new"><i class="fas fa-check"></i> {{ lang('status_new') }}</a>
+                        <a class="dropdown-item text-leader" href="{{ base_url() }}index.php/cldirectors/leader_approval"><i class="fas fa-check"></i> {{ lang('status_leader_approval') }}</a>
+                        <a class="dropdown-item text-danger" href="{{ base_url() }}index.php/cldirectors/manager_approval"><i class="fas fa-check"></i> {{ lang('status_manager_approval') }}</a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item text-primary" href="{{ base_url() }}index.php/cldirectors/leader_rejected"><i class="fas fa-check"></i> {{ lang('status_leader_rejected') }}</a>
+                        <a class="dropdown-item text-primary" href="{{ base_url() }}index.php/cldirectors/manager_rejected"><i class="fas fa-check"></i> {{ lang('status_manager_rejected') }}</a>
+                        <a class="dropdown-item text-primary" href="{{ base_url() }}index.php/cldirectors/director_rejected"><i class="fas fa-check"></i> {{ lang('status_director_rejected') }}</a>
+                    </div>
+                </li>
+                <li class="nav-item dropdown" id="menu-debt">
+                    <a class="nav-link" href="{{ base_url() }}index.php/debt">
+                        <i class="fas fa-list"></i>
+                        {{ lang('menu_debt') }}
+                    </a>
+                </li>
+                {% endif %}
+                {% if role_id >= constant('ROLE_CL_MANAGER') and role_id <= constant('ROLE_CL_DIRECTOR') %}
+                <li class="nav-item" id="cl-team">
+                    <a class="nav-link" href="{{ base_url() }}index.php/team">
+                        <i class="fas fa-sitemap"></i>
+                        {{ lang('menu_clmanagers_team') }}
+                    </a>
+                </li>
+                {% endif %}
+                {% if role_id == constant('ROLE_FI') %}
+                <li class="nav-item" id="fi-stats">
+                    <a class="nav-link" href="{{ base_url() }}index.php/fi">
+                        <i class="fas fa-home"></i>
+                        {{ lang('menu_stats') }}
+                    </a>
+                </li>
+                <li class="nav-item dropdown" id="fi-claimant">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="fas fa-user-shield"></i>
+                        {{ lang('menu_claimant') }}
+                    </a>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item text-primary" href="{{ base_url() }}index.php/fi/approved/M"><i class="fas fa-check"></i> {{ lang('menu_claimant_approved') }} (Member)</a>
+                        <a class="dropdown-item text-primary" href="{{ base_url() }}index.php/fi/approved/P"><i class="fas fa-check"></i> {{ lang('menu_claimant_approved') }} (Provider)</a>
+                        <a class="dropdown-item text-primary" href="{{ base_url() }}index.php/approved_upload"><i class="fas fa-file-upload"></i> {{ lang('menu_claimant_approved_upload') }}</a>
+                        <a class="dropdown-item text-success" href="{{ base_url() }}index.php/fi/sheets"><i class="fas fa-file-invoice-dollar"></i> {{ lang('menu_claimant_sheets') }}</a>
+                        <a class="dropdown-item text-warning" href="{{ base_url() }}index.php/fi/transferring"><i class="fas fa-hand-holding-usd"></i> {{ lang('menu_claimant_payments') }}</a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item text-info" href="{{ base_url() }}index.php/foreigner"><i class="fas fa-user-secret"></i> {{ lang('menu_foreigner') }}</a>
+                    </div>
+                </li>
+                <li class="nav-item dropdown" id="fi-partner">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="fas fa-building"></i>
+                        {{ lang('menu_partner') }}
+                    </a>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item text-primary" href="{{ base_url() }}index.php/fi/partner"><i class="fas fa-check"></i> {{ lang('menu_partner_approved') }}</a>
+                        <a class="dropdown-item text-success" href="{{ base_url() }}index.php/fi/partner/sheets"><i class="fas fa-file-invoice-dollar"></i> {{ lang('menu_partner_sheets') }}</a>
+                    </div>
+                </li>
+                <li class="nav-item dropdown" id="fi-transferred-refund">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="fas fa-search-dollar"></i>
+                        {{ lang('menu_transferred_refund') }}
+                    </a>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item text-primary" href="{{ base_url() }}index.php/fi/transferred"><i class="fas fa-check"></i> {{ lang('menu_search') }}</a>
+                        <a class="dropdown-item text-danger" href="{{ base_url() }}index.php/fi/refund_upload"><i class="fas fa-check"></i> {{ lang('menu_refund') }}</a>
+                        <a class="dropdown-item text-info" href="{{ base_url() }}index.php/fi/transferred_sheets"><i class="fas fa-file-excel"></i> {{ lang('menu_transferred_sheets') }}</a>
+                    </div>
+                </li>
+                <li class="nav-item dropdown" id="fi-returned-claim">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="fas fa-user-edit"></i>
+                        {{ lang('menu_notify_claim') }}
+                    </a>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item text-danger" href="{{ base_url() }}index.php/fi/returned_claim"> <i class="fas fa-arrow-circle-left"></i> {{ lang('menu_returned_claim') }}</a>
+                        <a class="dropdown-item text-danger" href="{{ base_url() }}index.php/fi/renewed_claim"> <i class="fas fa-retweet"></i> {{ lang('menu_renew_claim') }}</a>
+                    </div>
+                </li>
+                <li class="nav-item dropdown" id="fi-reports">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="fas fa-file-excel"></i>
+                        {{ lang('menu_reports') }}
+                    </a>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item text-primary" href="{{ base_url() }}index.php/fi/claim_fund"><i class="fas fa-file-excel"></i> {{ lang('menu_claim_fund') }}</a>
+                        <a class="dropdown-item text-success" href="{{ base_url() }}index.php/fi/claim_bordereaux"><i class="fas fa-file-excel"></i> {{ lang('menu_claim_bordereaux') }}</a>
+                    </div>
+                </li>
+                <li class="nav-item dropdown" id="payment-unc">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="fas fa-money-check-alt"></i>
+                        {{ lang('menu_payment_unc') }}
+                    </a>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item text-primary" href="{{ base_url() }}index.php/banker"><i class="fas fa-money-check-alt"></i> {{ lang('menu_payment_unc') }}</a>
+                        <a class="dropdown-item text-primary" href="{{ base_url() }}index.php/banker/add_unc_index"><i class="fas fa-money-check-alt"></i> {{ lang('menu_add_payment_unc') }}</a>
+                        <a class="dropdown-item text-primary" href="{{ base_url() }}index.php/groupbanker"><i class="fas fa-file-signature"></i> {{ lang('menu_group_sign_unc') }}</a>
+                        <a class="dropdown-item text-success" href="{{ base_url() }}index.php/banker/add_unc_code_index"><i class="fas fa-upload"></i> {{ lang('menu_payment_unc_code') }}</a>
+                    </div>
+                </li>
+                {% endif %}
+            </ul>
+        </div>
+        <ul class="navbar-nav flex-row ml-md-auto d-none d-md-flex">
+            <li class="nav-item">
+                <a class="nav-link p-2" href="#">
+                    {{ fullname }}
+                </a>
+            </li>
+            <li class="nav-item"> 
+                <a class="nav-link p-2" href="{{ base_url() }}index.php/users/reset/{{ user_id }}">
+                    <i class="fas fa-lock"></i>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link p-2" href="{{ base_url() }}index.php/session/logout">
+                    <i class="fas fa-power-off"></i>
+                </a>
+            </li>
+        </ul>
+    </nav>
+    {% endblock %}
+    <div class="container-fluid">
+        {% block body_title %}{% endblock %}
+        {% if msg_danger %}
+        <div class="alert alert-danger alert-dismissible fade show my-3" role="alert">
+            {{ msg_danger }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        {% endif %}
+        {% if msg_success %}
+        <div class="alert alert-success alert-dismissible fade show my-3" role="alert">
+            {{ msg_success }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        {% endif %}
+        {% block body %}{% endblock %}
+    </div>
+</body>
+<script type="text/javascript" src="{{ base_url() }}assets/js/jquery-3.3.1.min.js"></script>
+<script type="text/javascript" src="{{ base_url() }}assets/js/bootstrap.bundle.min.js"></script>
+{% block script %}{% endblock %}
+</html>

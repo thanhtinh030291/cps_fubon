@@ -1,0 +1,133 @@
+{% extends "skeleton.twig" %}
+
+{% block css %}
+<link href="{{ base_url() }}assets/css/bootstrap-select.min.css" rel="stylesheet">
+<link href="{{ base_url() }}assets/css/datatables.min.css" rel="stylesheet">
+<link href="{{ base_url() }}assets/css/jquery-ui.min.css" rel="stylesheet">
+{% endblock %}
+
+{% block body_title %}
+<h1 class="text-primary">{{ lang('menu_search') }}</h1>
+{% endblock %}
+
+{% block body %}
+<div class="row">
+    <div class="col-12">
+        <div class="card text-white bg-info">
+            <div class="card-header"><h4>{{ lang('search_title') }}</h4></div>
+        </div>
+        <div class="alert alert-info" role="alert">
+            <form role="form" enctype="multipart/form-data" method="post" >
+                <div class="form-row">
+                    <div class="form-group col-3">
+                        <label for="cl_no" class="col-form-label"><b>{{ lang('search_cl_no') }}</b></label>
+                        <input type="number" class="form-control" min="1601010001" max="4212319999" id="cl_no" name="cl_no" value="{{ post.cl_no }}" autocomplete="off">
+                    </div>
+                    <div class="form-group col-3">
+                        <label for="tf_status_id" class="col-form-label text-right"><b>{{ lang('search_status') }}</b></label>
+                        <select class="form-control selectpicker" data-live-search="true" id="tf_status_id" name="tf_status_id">
+                            <option></option>
+                            {% for status in transfer_status %}
+                            <option value="{{ status.TFST_ID }}" data-tokens="{{ status.TFST_NAME }}" {% if post.tf_status_id == status.TFST_ID %} selected {% endif %}>{{ status.TFST_NAME }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group col-3">
+                        <label for="prov_name" class="col-form-label"><b>{{ lang('search_gop') }}</b></label>
+                        <select class="form-control selectpicker" data-live-search="true" id="prov_name" name="prov_name">
+                            <option></option>
+                            {% for provider in providers %}
+                            <option value="{{ provider.PROV_NAME }}" data-tokens="{{ provider.PROV_NAME }}" {% if post.prov_name == provider.PROV_NAME %} selected {% endif %}>{{ provider.PROV_NAME }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group col-3">
+                        <label for="rcv_date" class="col-form-label"><b>{{ lang('search_rcv_date') }}</b></label>
+                        <input type="text" class="form-control" id="rcv_date" name="rcv_date" value="{{ post.rcv_date }}" autocomplete="off">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group col-3">
+                        <label for="app_date_from" class="col-form-label text-right"><b>{{ lang('search_app_date_from') }}</b></label>
+                        <input type="text" class="form-control" id="app_date_from" name="app_date_from" value="{{ post.app_date_from }}" autocomplete="off">
+                    </div>
+                    <div class="form-group col-3">
+                        <label for="app_date_to" class="col-form-label text-center"><b>{{ lang('search_app_date_to') }}</b></label>
+                        <input type="text" class="form-control" id="app_date_to" name="app_date_to" value="{{ post.app_date_to }}" autocomplete="off">
+                    </div>
+                    <div class="form-group col-3">
+                        <label for="req_date_from" class="col-form-label text-right"><b>{{ lang('search_req_date_from') }}</b></label>
+                        <input type="text" class="form-control" id="req_date_from" name="req_date_from" value="{{ post.req_date_from }}" autocomplete="off">
+                    </div>
+                    <div class="form-group col-3">
+                        <label for="req_date_to" class="col-form-label text-center"><b>{{ lang('search_req_date_to') }}</b></label>
+                        <input type="text" class="form-control" id="req_date_to" name="req_date_to" value="{{ post.req_date_to }}" autocomplete="off">
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-danger" name="btnSearchPayment">{{ lang('menu_search') }}</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% if post %}
+<div class="row">
+    <div class="col-12">
+        <div class="card border-primary">
+            <div class="card-header text-primary"><h3>{{ lang('search_result_title') }}</h3></div>
+            <div class="card-body table-responsive">
+                <table class="table table-hover table-striped table-bordered">
+                    <thead>
+                        <tr class="bg-primary text-white">
+                            <th scope="col">{{ lang('search_col_payment_id') }}</th>
+                            <th scope="col">{{ lang('search_col_payment_no') }}</th>
+                            <th scope="col">{{ lang('search_col_tf_status') }}</th>
+                            <th scope="col">{{ lang('search_col_tf_amt') }}</th>
+                            <th scope="col">{{ lang('search_col_deduct_amt') }}</th>
+                            <th scope="col">{{ lang('search_col_memb_ref_no') }}</th>
+                            <th scope="col">{{ lang('search_col_pocy_ref_no') }}</th>
+                            <th scope="col">{{ lang('search_gop') }}</th>
+                            <th scope="col">{{ lang('search_rcv_date') }}</th>
+                            <th scope="col">{{ lang('search_col_app_date') }}</th>
+                            <th scope="col">{{ lang('search_col_req_date') }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for payment in searched_payments %}
+                        <tr>
+                            <th scope="col" class="text-right"><a href="payments/{{ payment.PARQ_ID }}">{{ payment.PARQ_ID }}</a></th>
+                            <td scope="col"><a href="payments/{{ payment.PARQ_ID }}">{{ payment.CL_NO }}-{{ payment.TF_TIMES }}</a></td>
+                            <th scope="col" class="text-{{ payment.TFST_COLOR }}">{{ payment.TFST_NAME }}</th>
+                            <td scope="col" class="text-right">{{ payment.TF_AMT|number_format }}</td>
+                            <td scope="col" class="text-right">{{ payment.DEDUCT_AMT|number_format }}</td>
+                            <td scope="col">{{ payment.MEMB_REF_NO }}</td>
+                            <td scope="col">{{ payment.POCY_REF_NO }}</td>
+                            <td scope="col">{{ payment.PROV_NAME }}</td>
+                            <td scope="col">{{ payment.RCV_DATE }}</td>
+                            <td scope="col">{{ payment.APP_DATE }}</td>
+                            <td scope="col">{{ payment.REQ_DATE }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block script %}
+<script type="text/javascript" src="{{ base_url() }}assets/js/bootstrap-select.min.js"></script>
+<script type="text/javascript" src="{{ base_url() }}assets/js/datatables.min.js"></script>
+<script type="text/javascript" src="{{ base_url() }}assets/js/jquery-ui.min.js"></script>
+<script>
+$('#search-payments').addClass('active');
+$('#app_date_from, #app_date_to, #req_date_from, #req_date_to, #rcv_date').datepicker({
+    dateFormat: 'yy-mm-dd'
+});
+$('.table').DataTable({
+    lengthChange: false,
+    "order": [[ 5, "asc" ]]
+});
+</script>
+{% endblock %}

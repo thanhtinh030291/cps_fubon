@@ -1,0 +1,199 @@
+{% extends "skeleton.twig" %}
+
+{% block css %}
+<link href="{{ base_url() }}assets/css/jquery-ui.min.css" rel="stylesheet">
+<link href="{{ base_url() }}assets/css/datatables.min.css" rel="stylesheet">
+{% endblock %}
+
+{% block body %}
+<div class="row my-3">
+    <div class="col-12">
+        <div class="card border-primary mb-3">
+            
+            <div class="card-body table-responsive">
+                <table class="table table-hover table-striped table-bordered">
+                    <thead>
+                        <tr class="bg-info text-white">
+                            <th scope="col">ID</th>
+                            <th scope="col">NAME</th>
+                            {# <th scope="col">STATUS</th>
+                            <th scope="col">ACTION</i></th> #}
+                            <th scope="col">FILE NON SIGN</th>
+                            <th scope="col">FILE UNC</th>
+                            {# <th scope="col">FINAL FILE </th> #}
+                            <th scope="col">CREATED AT</th>
+                            <th scope="col">UPDATED AT</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for group in groups %}
+                        <tr>
+                            <th class="text-right">{{ group.GBS_ID }}</th>
+                            <th class="text-right">{{ group.NAME }}</th>
+                            {# <td>
+                                {% if group.STATUS == constant('NO_SIGN') %}
+                                    Not signed
+                                {% elseif group.STATUS == constant('WAIT_SIGN') %}                                  
+                                    Wait for signing
+                                {% else %}
+                                    Signed
+                                {% endif %}
+                            </td> #}
+                            {# <td>
+                                {% if group.STATUS == constant('NO_SIGN') %}
+                                    <form role="form" enctype="multipart/form-data" method="post" action="{{ base_url() }}index.php/groupbanker/request_signing">
+                                        <input type="hidden" name="id" value="{{ group.GBS_ID }}" />
+                                        <button  class="btn btn-primary"><i class="fas fa-mail-bulk"></i>Request Signing </button>
+                                    </form>
+                                {% endif %}                             
+                            </td> #}
+                            <td class="text-right">
+                                {% if group.URL_NO_SIGN %}
+                                    <button data-file="{{group.URL_NO_SIGN}}" onclick="viewfile(this);"><i class="fas fa-eye"></i></button>
+                                {% endif %}
+                            </td>
+                            <td class="text-right">
+                                {% if group.URL_ALL_UNC %}
+                                    <button data-file="{{group.URL_ALL_UNC}}" onclick="viewfile(this);"><i class="fas fa-eye"></i></button>
+                                {% endif %}
+                            </td>
+                            {# <td class="text-right">
+                                {% if group.URL_SIGNED %}
+                                    <button data-file="{{group.URL_SIGNED}}" onclick="viewfile(this);"><i class="fas fa-eye"></i></button>
+                                {% endif %}
+                            </td> #}
+                            <td class="text-right">{{ group.CRT_DATE }}</td>
+                            <td class="text-right">{{ group.UPD_DATE }}</td>
+                            
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Modal -->
+<div class="modal fade bd-example-modal-lg" id="unc_file" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+    <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">View File</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body">
+        <embed  id='link_file' src="" width="780" height="500" type="application/pdf">
+        
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+    </div>
+    </div>
+</div>
+</div>
+<!-- End Modal -->
+<!-- Modal comfirm -->
+<div class="modal fade bd-example-modal-lg" id="confirm" tabindex="-1" role="dialog" aria-labelledby="confirmTitle" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title text-danger" id="confirmTitle">{{ lang('fi_confirm_title') }}</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form role="form" enctype="multipart/form-data" method="post" action="{{ base_url() }}index.php/banker/update_unc">
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="form-group col-12">
+                            <label class="col-form-label">File UNC (pdf) :</label>
+                            <input class="form-control" name = "fileu" type="file" required/>
+                        </div>
+                        <div class="row p-2" id="item_clone" style="display:none">
+                            <div class="form-group col-4">
+                                <label class="col-form-label">{{ lang('col_id') }}</label>
+                                <input class="form-control" name = "_PAYM_ID[]" value="value_PAYM_ID" type="text" required readonly/>
+                            </div>
+                            <div class="form-group col-4">
+                                <label class="col-form-label">{{ lang('col_cl_no') }}</label>
+                                <input class="form-control" value="value_CL_NO" type="text" readonly/>
+                            </div>
+                            <div class="form-group col-4">
+                                <label class="col-form-label">Page</label>
+                                <input class="form-control" name = "_PAGE[]" value="" type="text" />
+                            </div>
+                        </div>
+                        <div class="row p-2" id="item_add">
+
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ lang('btn_no') }}</button>
+                    <button type="submit" class="btn btn-danger">{{ lang('btn_yes') }}</button>
+                </div>
+                <!-- Hidden -->
+                <input type="hidden" name="file_name" value="{{ file_name }}">
+                <input type="hidden" name="paym_ids" id="confirm_paym_ids">
+                <input type="hidden" name="paym_pages" id="confirm_page">
+            </form>
+        </div>
+    </div>
+</div>
+<!-- End Modal -->
+<!-- Modal export -->
+<div class="modal fade" id="export" tabindex="-1" role="dialog" aria-labelledby="confirmTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title text-danger" id="confirmTitle">{{ lang('fi_confirm_title') }}</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form role="form" enctype="multipart/form-data" method="post" action="{{ base_url() }}index.php/banker/export_pdf_sign">
+                <div class="modal-body">
+                    <h6 class="text-primary">
+                        Export UNC and Page Sign to PDF ??
+                    <h6>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ lang('btn_no') }}</button>
+                    <button type="submit" class="btn btn-danger">{{ lang('btn_yes') }}</button>
+                </div>
+                <!-- Hidden -->
+                <input type="hidden" name="paym_ids" id="export_paym_ids">
+            </form>
+        </div>
+    </div>
+</div>
+<!-- End Modal -->
+{% endblock %}
+
+{% block script %}
+<script type="text/javascript" src="{{ base_url() }}assets/js/jquery-ui.min.js"></script>
+<script type="text/javascript" src="{{ base_url() }}assets/js/datatables.min.js"></script>
+<script>
+$('#fi-transferred-refund').addClass('active');
+$('.date').datepicker({
+    dateFormat: 'yy-mm-dd'
+});
+var list_selected_index = [];
+$( 'table' ).DataTable(
+    { order: [[ 0, "desc" ]],}
+);
+function viewfile(e) {
+    var dir = "{{ base_url() }}"+"assets/dl/unc_sign/";
+    var url = e.dataset.file;
+    $("#link_file").attr("src",dir+url);
+    var parent = $('#link_file').parent();
+    var newElement = "<embed src='"+dir+url+"' id='link_file' width='780' height='500' type='application/pdf'>";
+    $('#link_file').remove();
+    parent.append(newElement);
+    $( '#unc_file' ).modal( 'toggle' );
+}
+
+</script>
+{% endblock %}

@@ -1,0 +1,154 @@
+{% extends "skeleton.twig" %}
+
+{% block css %}
+<link href="{{ base_url() }}assets/css/jquery-ui.min.css" rel="stylesheet">
+{% endblock %}
+
+{% block body %}
+<div class="row my-3">
+    <div class="col-12">
+        <div class="card border-info">
+            <div class="card-header border-primary text-center">
+                <h4 class="text-primary">{{ lang('fi_returned_claim_repay_title') }}<h4>
+            </div>
+            <div class="card-body table-responsive">
+                <table class="table table-bordered">
+                    <form role="form" enctype="multipart/form-data" method="post" action="{{ base_url() }}index.php/fi/repay">
+                        <tbody>
+                            <tr>
+                                <th scope="row" class="text-info">{{ lang('fi_modal_sheet_name') }}</th>
+                                <th colspan="{{ payments|length }}" class="text-primary"><i>{{ sheet_name }}</i></th>
+                            </tr>
+                            <tr>
+                                <th scope="row" class="text-info">{{ lang('col_cl_no') }}</th>
+                                {% for payment in payments %}
+                                <th class="text-leader">{{ payment.CL_NO }}</th>
+                                {% endfor %}
+                            </tr>
+                            <tr>
+                                <th scope="row" class="text-info">{{ lang('col_payment_method') }}</th>
+                                {% for payment in payments %}
+                                <td class="was-validated">
+                                    <select class="form-control" name="payment_method_{{ payment.PAYM_ID }}" id="payment_method_{{ payment.PAYM_ID }}" required>
+                                        <option value="TT" {% if payment.PAYMENT_METHOD == 'TT' %}selected{% endif %}>{{ lang('fi_returned_claim_payment_method_tt') }}</option>
+                                        <option value="CH" {% if payment.PAYMENT_METHOD == 'CH' %}selected{% endif %}>{{ lang('fi_returned_claim_payment_method_ch') }}</option>
+                                        <option value="CQ" {% if payment.PAYMENT_METHOD == 'CQ' %}selected{% endif %}>{{ lang('fi_returned_claim_payment_method_cq') }}</option>
+                                    </select>
+                                </td>
+                                {% endfor %}
+                            </tr>
+                            <tr>
+                                <th scope="row" class="text-info">{{ lang('col_acct_name') }}</th>
+                                {% for payment in payments %}
+                                <td class="was-validated">
+                                    <input type="text" class="form-control" maxlength="100" name="acct_name_{{ payment.PAYM_ID }}" value="{{ payment.ACCT_NAME }}" {% if payment.PAYMENT_METHOD == 'TT' %}required{% endif %}>
+                                </td>
+                                {% endfor %}
+                            </tr>
+                            <tr>
+                                <th scope="row" class="text-info">{{ lang('col_acct_no') }}</th>
+                                {% for payment in payments %}
+                                <td class="was-validated">
+                                    <input type="text" class="form-control" maxlength="30" name="acct_no_{{ payment.PAYM_ID }}" value="{{ payment.ACCT_NO }}" {% if payment.PAYMENT_METHOD == 'TT' %}required{% endif %}>
+                                </td>
+                                {% endfor %}
+                            </tr>
+                            <tr>
+                                <th scope="row" class="text-info">{{ lang('col_bank_name') }}</th>
+                                {% for payment in payments %}
+                                <td class="was-validated">
+                                    <input type="text" class="form-control" maxlength="100" name="bank_name_{{ payment.PAYM_ID }}" value="{{ payment.BANK_NAME }}" {% if payment.PAYMENT_METHOD == 'TT' or payment.PAYMENT_METHOD == 'CH' %}required{% endif %}>
+                                </td>
+                                {% endfor %}
+                            </tr>
+                            <tr>
+                                <th scope="row" class="text-info">{{ lang('col_bank_branch') }}</th>
+                                {% for payment in payments %}
+                                <td class="was-validated">
+                                    <input type="text" class="form-control" maxlength="100" name="bank_branch_{{ payment.PAYM_ID }}" value="{{ payment.BANK_BRANCH }}" {% if payment.PAYMENT_METHOD == 'TT' or payment.PAYMENT_METHOD == 'CH' %}required{% endif %}>
+                                </td>
+                                {% endfor %}
+                            </tr>
+                            <tr>
+                                <th scope="row" class="text-info">{{ lang('col_bank_city') }}</th>
+                                {% for payment in payments %}
+                                <td class="was-validated">
+                                    <input type="text" class="form-control" maxlength="100" name="bank_city_{{ payment.PAYM_ID }}" value="{{ payment.BANK_CITY }}" {% if payment.PAYMENT_METHOD == 'TT' or payment.PAYMENT_METHOD == 'CH' %}required{% endif %}>
+                                </td>
+                                {% endfor %}
+                            </tr>
+                            <tr>
+                                <th scope="row" class="text-info">{{ lang('col_beneficiary_name') }}</th>
+                                {% for payment in payments %}
+                                <td class="was-validated">
+                                    <input type="text" class="form-control" maxlength="100" name="beneficiary_name_{{ payment.PAYM_ID }}" value="{{ payment.BENEFICIARY_NAME }}" {% if payment.PAYMENT_METHOD == 'CQ' or payment.PAYMENT_METHOD == 'CH' %}required{% endif %}>
+                                </td>
+                                {% endfor %}
+                            </tr>
+                            <tr>
+                                <th scope="row" class="text-info">{{ lang('col_pp_no') }}</th>
+                                {% for payment in payments %}
+                                <td class="was-validated">
+                                    <input type="text" class="form-control" maxlength="20" name="pp_no_{{ payment.PAYM_ID }}" value="{{ payment.PP_NO }}" {% if payment.PAYMENT_METHOD == 'CQ' or payment.PAYMENT_METHOD == 'CH' %}required{% endif %}>
+                                </td>
+                                {% endfor %}
+                            </tr>
+                            <tr>
+                                <th scope="row" class="text-info">{{ lang('col_pp_date') }}</th>
+                                {% for payment in payments %}
+                                <td class="was-validated">
+                                    <input type="text" class="form-control pp_date" name="pp_date_{{ payment.PAYM_ID }}" value="{% if payment.PP_DATE %}{{ payment.PP_DATE|date('d/m/Y') }}{% endif %}" autocomplete="off" {% if payment.PAYMENT_METHOD == 'CQ' or payment.PAYMENT_METHOD == 'CH' %}required{% endif %}>
+                                </td>
+                                {% endfor %}
+                            </tr>
+                            <tr>
+                                <th scope="row" class="text-info">{{ lang('col_pp_place') }}</th>
+                                {% for payment in payments %}
+                                <td class="was-validated">
+                                    <input type="text" class="form-control" maxlength="100" name="pp_place_{{ payment.PAYM_ID }}" value="{{ payment.PP_PLACE }}" {% if payment.PAYMENT_METHOD == 'CQ' or payment.PAYMENT_METHOD == 'CH' %}required{% endif %}>
+                                </td>
+                                {% endfor %}
+                            </tr>
+                            <tr>
+                                <td colspan="{{ payments|length + 1 }}">
+                                    <button type="submit" class="btn btn-danger">{{ lang('fi_returned_claim_repay_btn') }}</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                        <!-- Hidden -->
+                        <input type="hidden" name="paym_ids" value="{{ paym_ids }}">
+                        <input type="hidden" name="sheet_id" value="{{ sheet_id }}">
+                    </form>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block script %}
+<script type="text/javascript" src="{{ base_url() }}assets/js/jquery-ui.min.js"></script>
+<script>
+$(document).ready(function(){
+    $('#fi-returned-claim').addClass('active');
+    $('.pp_date').datepicker({
+        dateFormat: 'dd/mm/yy'
+    });
+    {% for payment in payments %}
+    $('#payment_method_{{ payment.PAYM_ID }}').change(function(){
+        $('input[name*="_{{ payment.PAYM_ID }}"]').prop('required', false);
+        var index = this.selectedIndex;
+        $('input[name="acct_name_{{ payment.PAYM_ID }}"], input[name="acct_no_{{ payment.PAYM_ID }}"]').prop('required', function(){
+            return index == 0;
+        });
+        $('input[name="bank_name_{{ payment.PAYM_ID }}"], input[name="bank_branch_{{ payment.PAYM_ID }}"], input[name="bank_city_{{ payment.PAYM_ID }}"]').prop('required', function(){
+            return index == 0 || index == 1;
+        });
+        $('input[name="beneficiary_name_{{ payment.PAYM_ID }}"], input[name="pp_no_{{ payment.PAYM_ID }}"], input[name="pp_date_{{ payment.PAYM_ID }}"], input[name="pp_place_{{ payment.PAYM_ID }}"]').prop('required', function(){
+            return index == 1 || index == 2;
+        });
+    });
+    {% endfor %}
+});
+</script>
+{% endblock %}

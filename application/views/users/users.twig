@@ -1,0 +1,77 @@
+{% extends "skeleton.twig" %}
+
+{% block css %}
+<link href="{{ base_url() }}assets/css/datatables.min.css" rel="stylesheet">
+{% endblock %}
+
+{% block style %}
+.table-striped>tbody>tr:nth-child(odd)>td, .table-striped>tbody>tr:nth-child(odd)>th { background-color: #17a2b8; }
+.table-striped>tbody>tr:nth-child(even)>td, .table-striped>tbody>tr:nth-child(even)>th { background-color: #666699; }
+.table-hover tbody tr:hover td, .table-hover tbody tr:hover th { background-color: #d95326; }
+{% endblock %}
+
+{% block body_title %}
+<h1 class="text-success">{{ lang('user_title') }}</h1>
+{% endblock %}
+
+{% block body %}
+<div class="row my-3">
+    <div class="col-12">
+        <div class="card border-info">
+            <div class="card card-header">
+                <div class="table-responsive">
+                    <table class="table table-dark table-bordered table-hover table-striped">
+                        <thead>
+                            <tr>
+                                <th scope="col">{{ lang('user_index') }}</th>
+                                <th scope="col">{{ lang('user_id') }}</th>
+                                <th scope="col">{{ lang('user_fullname') }}</th>
+                                <th scope="col">{{ lang('user_email') }}</th>
+                                <th scope="col">{{ lang('user_role') }}</th>
+                                <th scope="col">{{ lang('user_active') }}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for user in users %}
+                            <tr>
+                                <th scope="row" data-order="{{ user.USER_ID }}">{{ user.USER_ID }}</th>
+                                <td>
+                                    {{ user.USER_NAME }}
+                                    <span class="float-right">
+                                        <a href="users/edit/{{ user.USER_ID }}" title="edit"><i class="fas fa-edit text-white"></i></a>
+                                        &nbsp;
+                                        <a href="users/reset/{{ user.USER_ID }}" title="reset"><i class="fas fa-lock text-white"></i></a>
+                                    </span>
+                                </td>
+                                <td>{{ user.FULLNAME }}</td>
+                                <td>{{ user.EMAIL }}</td>
+                                <td>{{ user.ROLE_DESC }}</td>
+                                <td>{% if user.ACTIVE == 0 %} {{ lang('user_active_no') }} {% else %} {{ lang('user_active_yes') }} {% endif %}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <div>&nbsp;</div>
+                <div>
+                    <a href="users/create" class="btn btn-primary"><i class="fas plus-square icon-white"></i>&nbsp;{{ lang('user_btn_create_user') }}</a>&nbsp;
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block script %}
+<script type="text/javascript" src="{{ base_url() }}assets/js/datatables.min.js"></script>
+<script>
+$( document ).ready( function() {
+    // menu active
+    $( '#users' ).addClass( 'active' );
+    // Table
+    $( 'table' ).dataTable( {
+        stateSave: true
+    } );
+} );
+</script>
+{% endblock %}

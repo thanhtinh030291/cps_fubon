@@ -1,0 +1,84 @@
+{% extends "skeleton.twig" %}
+
+{% block css %}
+<link href="{{ base_url() }}assets/css/datatables.min.css" rel="stylesheet">
+{% endblock %}
+
+{% block body_title %}
+<h1 class="text-primary">{{ lang('menu_unassigned') }}</h1>
+{% endblock %}
+
+{% block body %}
+<div class="row">
+    <div class="col-12">
+        <div class="card border-primary">
+            <div class="card-header text-primary">
+                <div class="row">
+                    <div class="col-12">
+                        <h3>{{ lang('menu_unassigned') }}</h3>
+                        <h6 class="card-subtitle text-muted">{{ lang('claim_unassigned_desc') }}</h6>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body table-responsive">
+                <table class="table table-hover table-striped table-bordered" id="unassigned-table">
+                    <thead>
+                        <tr class="bg-primary text-white">
+                            <th scope="col">{{ lang('col_id') }}</th>
+                            <th scope="col">{{ lang('col_payment_no') }}</th>
+                            <th scope="col">{{ lang('col_pocy_ref_no') }}</th>
+                            <th scope="col">{{ lang('col_memb_ref_no') }}</th>
+                            <th scope="col">{{ lang('col_hbs_upd_user') }}</th>
+                            <th scope="col">{{ lang('col_upd_date') }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for payment in payments %}
+                        <tr>
+                            <th scope="col" class="text-right">{{ payment.PARQ_ID }}</th>
+                            <td scope="col">{{ payment.CL_NO }} - {{ payment.TF_TIMES }}<span class="float-right"><a href="#" title="confirm" data-toggle="modal" data-target="#needAssign{{ payment.PARQ_ID }}"><i class="fas fa-check text-danger"></i></a></span></td>
+                            <td scope="col">{{ payment.POCY_REF_NO }}</td>
+                            <td scope="col">{{ payment.MEMB_REF_NO }}</td>
+                            <td scope="col">{{ payment.HBS_UPD_USER }}</td>
+                            <td scope="col">{{ payment.UPD_DATE }}</td>
+                        </tr>
+                        <div class="modal fade" id="needAssign{{ payment.PARQ_ID }}" tabindex="-1" role="dialog" aria-labelledby="confirmTitle" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title text-info" id="confirmTitle">{{ lang('claim_unassigned_confirm_title') }}</h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ lang('claim_unassigned_confirm_no') }}</button>
+                                        <form role="form" enctype="multipart/form-data" method="post" action="payments/find_mantis_id/{{ payment.PARQ_ID }}">
+                                            <button type="submit" class="btn btn-success">{{ lang('claim_unassigned_confirm_yes') }}</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block script %}
+<script type="text/javascript" src="{{ base_url() }}assets/js/datatables.min.js"></script>
+<script>
+$('#unassigned').addClass('active');
+$(".alert-dismissible").fadeTo(3000, 500).slideUp(500, function(){
+    $(".alert-dismissible").slideUp(500);
+});
+$('#unassigned-table').DataTable({
+    lengthChange: false,
+    "order": [[ 1, "asc" ]]
+});
+</script>
+{% endblock %}

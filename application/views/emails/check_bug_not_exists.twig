@@ -1,0 +1,26 @@
+<html lang="en">
+    <head>
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta charset="UTF-8">
+    </head>
+    <body>
+        <p>Task Scheduler Server: 192.168.0.10</p>
+        <p>Please check lists below to ensure they are known issues</p>
+        <table cellspacing="1" style="border:2px dashed #FB4314;width:300px">
+            <thead>
+                <tr style="background-color:#007bff;color:white;">
+                    <th width="50%">Issue ID</th>
+                    <th width="50%">Assigned To</th>
+                </tr>
+            </thead>
+            <tbody>
+                {data}
+                <tr>
+                    <th width="50%">{bug_id}</th>
+                    <td width="50%">{username}</td>
+                </tr>
+                {/data}
+            </tbody>
+        </table>
+    </body>
+</html>

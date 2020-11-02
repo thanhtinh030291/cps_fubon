@@ -1,0 +1,114 @@
+{% extends "skeleton.twig" %}
+
+{% block css %}
+<link href="{{ base_url() }}assets/css/bootstrap-select.min.css" rel="stylesheet">
+<link href="{{ base_url() }}assets/css/datatables.min.css" rel="stylesheet">
+{% endblock %}
+
+{% block style %}
+.btn-excel {color: fff;background-color:#006622;border-color:#006622}
+{% endblock %}
+
+{% block body %}
+<div class="row my-3">
+    <div class="col-12">
+        <div class="card text-white bg-info">
+            <div class="card-header"><h4>{{ lang('menu_claim_bordereaux') }}</h4></div>
+        </div>
+        <div class="alert alert-info" role="alert">
+            <form id="claim_bordereaux" class="was-validated" role="form" enctype="multipart/form-data" method="post">
+                <div class="form-row">
+                    <div class="form-group col-3">
+                        <label for="cb_month" class="col-form-label text-right"><b>{{ lang('cb_month') }}</b></label>
+                        <input type="number" min="1" max="12" class="form-control" id="cb_month" name="cb_month" value="{{ post.cb_month }}" autocomplete="off" required>
+                    </div>
+                    <div class="form-group col-3">
+                        <label for="cb_year" class="col-form-label text-center"><b>{{ lang('cb_year') }}</b></label>
+                        <input type="number" min="2016" max="{{ now|date('Y') }}" class="form-control" id="cb_year" name="cb_year" value="{{ post.cb_year }}" autocomplete="off" required>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-danger" name="btnSearch">{{ lang('search_btn') }}</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% if post %}
+<div class="row my-3">
+    <div class="col-12">
+        <div class="card border-primary">
+            <div class="card-header text-primary text-center">
+                <h3>{{ lang('cb_report_title') }}</h3>
+                <h6 class="card-subtitle text-muted">{{ lang('cb_report_desc')|format(post.cb_month, post.cb_year) }}</h6>
+            </div>
+            <div class="card-body table-responsive">
+                {% if report %}
+                <table class="table table-sm table-hover table-striped table-bordered" id="cb-table">
+                    <thead>
+                        <tr class="bg-primary text-white">
+                            <th scope="col">{{ lang('col_cb_no') }}</th>
+                            <th scope="col">{{ lang('col_cb_claimant') }}</th>
+                            <th scope="col">{{ lang('col_cb_client_id') }}</th>
+                            <th scope="col">{{ lang('col_cb_pocy_ref_no') }}</th>
+                            <th scope="col">{{ lang('col_cb_cl_no') }}</th>
+                            <th scope="col">{{ lang('col_cb_inv_no') }}</th>
+                            <th scope="col">{{ lang('col_cb_claim_vnd') }}</th>
+                            <th scope="col">{{ lang('col_cb_paid_vnd') }}</th>
+                            <th scope="col">{{ lang('col_cb_visit') }}</th>
+                            <th scope="col">{{ lang('col_cb_payment_date') }}</th>
+                            <th scope="col">{{ lang('col_cb_payee') }}</th>
+                            <th scope="col">{{ lang('col_cb_tf_amt') }}</th>
+                            <th scope="col">{{ lang('col_cb_tf_date') }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in report %}
+                        <tr>
+                            <th scope="col" class="text-right">{{ loop.index }}</th>
+                            <td scope="col">{{ row.CLAIMANT }}</td>
+                            <td scope="col">{{ row.CLIENT_ID }}</td>
+                            <td scope="col">{{ row.POCY_REF_NO }}</td>
+                            <td scope="col">{{ row.CL_NO }}</td>
+                            <td scope="col">{{ row.INV_NO }}</td>
+                            <td scope="col" class="text-right">{{ row.PRES_AMT|number_format }}</td>
+                            <td scope="col" class="text-right">{{ row.APP_AMT|number_format }}</td>
+                            <td scope="col">{{ row.VISIT_FOR_BENEFIT }}</td>
+                            <td scope="col">{{ row.PAYMENT_DATE|date('d/m/Y') }}</td>
+                            <td scope="col">{{ row.PAYEE }}</td>
+                            <td scope="col" class="text-right">{{ row.TF_AMT|number_format }}</td>
+                            <td scope="col">{{ row.TF_DATE|date('d/m/Y') }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block script %}
+<script type="text/javascript" src="{{ base_url() }}assets/js/bootstrap-select.min.js"></script>
+<script type="text/javascript" src="{{ base_url() }}assets/js/datatables.min.js"></script>
+<script>
+$('#fi-reports').addClass('active');
+$('.table').DataTable({
+    lengthChange: false,
+    order: false,
+    paging: false,
+    dom: "<'row'<'col-9'B><'col-3'f>>" +
+         "<'row'<'col-12'tr>>" +
+         "<'row'<'col-5'i><'col-7'p>>",
+    buttons: [
+        {
+            extend: 'excel',
+            filename: 'Report_Dai-ichi_Claim_Bordereaux_{{ post.cb_month }}-{{ post.cb_year }}',
+            className: 'btn btn-excel',
+            title : "{{ lang('cb_report_title') }}",
+            messageTop: "{{ lang('cb_report_desc')|format(post.cb_month, post.cb_year) }}"
+        }
+    ]
+});
+</script>
+{% endblock %}

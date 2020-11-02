@@ -1,0 +1,24 @@
+{% extends "skeleton.twig" %}
+
+{% block css %}
+{{ include('datatables_css.twig') }}
+{% endblock %}
+
+{% block body_title %}
+<ul class="nav">
+    <li class="nav-item">
+        <a class="nav-link text-danger" href="{{ base_url() }}index.php/clmanagers/approved">
+            <h3>{{ lang('status_approved') }}</h3>
+        </a>
+    </li>
+</ul>
+{% endblock %}
+
+{% block body %}
+{{ include('claim/table.twig') }}
+{% endblock %}
+
+
+{% block script %}
+{{ include('datatables_js.twig') }}
+{% endblock %}

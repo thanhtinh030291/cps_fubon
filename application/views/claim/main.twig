@@ -1,0 +1,289 @@
+{% extends "skeleton.twig" %}
+
+{% block css %}
+<link href="{{ base_url() }}assets/css/datatables.min.css" rel="stylesheet">
+{% endblock %}
+
+{% block body_title %}
+<h1 class="text-primary">{{ lang('menu_claim') }} #{{ user_name }}</h1>
+{% endblock %}
+
+{% block body %}
+<nav>
+    <div class="nav nav-tabs" id="nav-tab" role="tablist">
+        <a class="nav-item nav-link active" id="nav-new-reviewed-tab" data-toggle="tab" href="#nav-new-reviewed" role="tab" aria-controls="nav-new-reviewed" aria-selected="true">
+            <span class="text-success">{{ lang('claim_tab_new') }}</span> - <span class="text-primary">{{ lang('claim_tab_review') }}</span>
+        </a>
+        <a class="nav-item nav-link" id="nav-rejected-returned-tab" data-toggle="tab" href="#nav-rejected-returned" role="tab" aria-controls="nav-rejected-returned" aria-selected="false">
+            <span class="text-danger">{{ lang('claim_tab_rejected') }} - {{ lang('claim_tab_deleted') }}</span>
+        </a>
+        <a class="nav-item nav-link" id="nav-ready-tab" data-toggle="tab" href="#nav-ready" role="tab" aria-controls="nav-ready" aria-selected="false">
+            <span class="text-info">{{ lang('claim_tab_returned') }}</span> - <span class="text-warning">{{ lang('claim_tab_waiting') }}</span>
+        </a>
+    </div>
+</nav>
+<div class="tab-content" id="nav-tabContent">
+    <div class="tab-pane fade show active" id="nav-new-reviewed" role="tabpanel" aria-labelledby="nav-new-reviewed-tab">
+        <div class="row">
+            <div class="col-6">
+                <div class="card border-success">
+                    <div class="card-header text-success">
+                        <h3>{{ lang('claim_tab_new_title') }}</h3>
+                        <h6 class="card-subtitle text-muted">{{ lang('claim_tab_new_desc') }}</h6>
+                    </div>
+                    <div class="card-body table-responsive">
+                        <table class="table table-hover table-striped table-bordered" id="new-payments">
+                            <thead>
+                                <tr class="bg-success text-white">
+                                    <th scope="col">{{ lang('col_id') }}</th>
+                                    <th scope="col">{{ lang('col_payment_no') }}</th>
+                                    <th scope="col">{{ lang('col_tf_amt') }}</th>
+                                    <th scope="col">{{ lang('col_memb_ref_no') }}</th>
+                                    <th scope="col">{{ lang('col_pocy_ref_no') }}</th>
+                                    <th scope="col">{{ lang('col_upd_date') }}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for payment in new_payments %}
+                                <tr>
+                                    {% if payment.CL_TYPE == 'P' and payment.PROV_NAME in hold_providers %}
+                                    <th scope="col" class="text-right"><i class="fas fa-lock"></i> {{ payment.PARQ_ID }}</th>
+                                    <td scope="col">{{ payment.CL_NO }}-{{ payment.TF_TIMES }}{% if payment.YN_NEW == 'Y' %}<i class="fas fa-undo"></i>{% endif %}</td>
+                                    {% else %}
+                                    <th scope="col" class="text-right"><a href="payments/{{ payment.PARQ_ID }}">{{ payment.PARQ_ID }}</a></th>
+                                    <td scope="col"><a href="payments/{{ payment.PARQ_ID }}">{{ payment.CL_NO }}-{{ payment.TF_TIMES }}</a>{% if payment.YN_NEW == 'Y' %}<span class="text-danger float-right"><i class="fas fa-undo"></i></span>{% endif %}</td>
+                                    {% endif %}
+                                    <td scope="col" class="text-right">{{ payment.TF_AMT|number_format }}</td>
+                                    <td scope="col">{{ payment.MEMB_REF_NO }}</td>
+                                    <td scope="col">{{ payment.POCY_REF_NO }}</td>
+                                    <td scope="col">{{ payment.UPD_DATE }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6">
+                <div class="card border-primary">
+                    <div class="card-header text-primary">
+                        <h3>{{ lang('claim_tab_review_title') }}</h3>
+                        <h6 class="card-subtitle text-muted">{{ lang('claim_tab_review_desc') }}</h6>
+                    </div>
+                    <div class="card-body table-responsive">
+                        <table class="table table-hover table-striped table-bordered" id="reviewed-payments">
+                            <thead>
+                                <tr class="bg-primary text-white">
+                                    <th scope="col">{{ lang('col_id') }}</th>
+                                    <th scope="col">{{ lang('col_payment_no') }}</th>
+                                    <th scope="col">{{ lang('col_tf_amt') }}</th>
+                                    <th scope="col">{{ lang('col_memb_ref_no') }}</th>
+                                    <th scope="col">{{ lang('col_pocy_ref_no') }}</th>
+                                    <th scope="col">{{ lang('col_upd_date') }}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for payment in reviewed_payments %}
+                                <tr>
+                                    {% if payment.CL_TYPE == 'P' and payment.PROV_NAME in hold_providers %}
+                                    <th scope="col" class="text-right"><i class="fas fa-lock"></i> {{ payment.PARQ_ID }}</th>
+                                    <td scope="col">{{ payment.CL_NO }}-{{ payment.TF_TIMES }}</td>
+                                    {% else %}
+                                    <th scope="col" class="text-right"><a href="payments/{{ payment.PARQ_ID }}">{{ payment.PARQ_ID }}</a></th>
+                                    <td scope="col"><a href="payments/{{ payment.PARQ_ID }}">{{ payment.CL_NO }}-{{ payment.TF_TIMES }}</a></td>
+                                    {% endif %}
+                                    <td scope="col" class="float-right">{{ payment.TF_AMT|number_format }}</td>
+                                    <td scope="col">{{ payment.MEMB_REF_NO }}</td>
+                                    <td scope="col">{{ payment.POCY_REF_NO }}</td>
+                                    <td scope="col">{{ payment.UPD_DATE }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="tab-pane fade" id="nav-rejected-returned" role="tabpanel" aria-labelledby="nav-rejected-returned-tab">
+        <div class="row">
+            <div class="col-6">
+                <div class="card border-danger">
+                    <div class="card-header text-danger">
+                        <h3>{{ lang('claim_tab_rejected_title') }}</h3>
+                        <h6 class="card-subtitle text-muted">{{ lang('claim_tab_rejected_desc') }}</h6>
+                    </div>
+                    <div class="card-body table-responsive">
+                        <table class="table table-hover table-striped table-bordered" id="rejected-payments">
+                            <thead>
+                                <tr class="bg-danger text-white">
+                                    <th scope="col">{{ lang('col_id') }}</th>
+                                    <th scope="col">{{ lang('col_payment_no') }}</th>
+                                    <th scope="col">{{ lang('col_tf_amt') }}</th>
+                                    <th scope="col">{{ lang('col_memb_ref_no') }}</th>
+                                    <th scope="col">{{ lang('col_pocy_ref_no') }}</th>
+                                    <th scope="col">{{ lang('col_upd_date') }}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for payment in rejected_payments %}
+                                <tr>
+                                    {% if payment.CL_TYPE == 'P' and payment.PROV_NAME in hold_providers %}
+                                    <th scope="col" class="text-right"><i class="fas fa-lock"></i> {{ payment.PARQ_ID }}</th>
+                                    <td scope="col">{{ payment.CL_NO }}-{{ payment.TF_TIMES }}</td>
+                                    {% else %}
+                                    <th scope="col" class="text-right"><a href="payments/{{ payment.PARQ_ID }}">{{ payment.PARQ_ID }}</a></th>
+                                    <td scope="col"><a href="payments/{{ payment.PARQ_ID }}">{{ payment.CL_NO }}-{{ payment.TF_TIMES }}</a></td>
+                                    {% endif %}
+                                    <td scope="col" class="text-right">{{ payment.TF_AMT|number_format }}</td>
+                                    <td scope="col">{{ payment.MEMB_REF_NO }}</td>
+                                    <td scope="col">{{ payment.POCY_REF_NO }}</td>
+                                    <td scope="col">{{ payment.UPD_DATE }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6">
+                <div class="card border-danger">
+                    <div class="card-header text-danger">
+                        <h3>{{ lang('claim_tab_deleted_title') }}</h3>
+                        <h6 class="card-subtitle text-muted">{{ lang('claim_tab_deleted_desc') }}</h6>
+                    </div>
+                    <div class="card-body table-responsive">
+                        <table class="table table-hover table-striped table-bordered" id="deleted-payments">
+                            <thead>
+                                <tr class="bg-danger text-white">
+                                    <th scope="col">{{ lang('col_id') }}</th>
+                                    <th scope="col">{{ lang('col_payment_no') }}</th>
+                                    <th scope="col">{{ lang('col_tf_amt') }}</th>
+                                    <th scope="col">{{ lang('col_memb_ref_no') }}</th>
+                                    <th scope="col">{{ lang('col_pocy_ref_no') }}</th>
+                                    <th scope="col">{{ lang('col_upd_date') }}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for payment in deleted_payments %}
+                                <tr>
+                                    {% if payment.CL_TYPE == 'P' and payment.PROV_NAME in hold_providers %}
+                                    <th scope="col" class="text-right"><i class="fas fa-lock"></i> {{ payment.PARQ_ID }}</th>
+                                    <td scope="col">{{ payment.CL_NO }}-{{ payment.TF_TIMES }}</td>
+                                    {% else %}
+                                    <th scope="col" class="text-right"><a href="payments/{{ payment.PARQ_ID }}">{{ payment.PARQ_ID }}</a></th>
+                                    <td scope="col"><a href="payments/{{ payment.PARQ_ID }}">{{ payment.CL_NO }}-{{ payment.TF_TIMES }}</a></td>
+                                    {% endif %}
+                                    <td scope="col" class="text-right">{{ payment.TF_AMT|number_format }}</td>
+                                    <td scope="col">{{ payment.MEMB_REF_NO }}</td>
+                                    <td scope="col">{{ payment.POCY_REF_NO }}</td>
+                                    <td scope="col">{{ payment.UPD_DATE }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="tab-pane fade" id="nav-ready" role="tabpanel" aria-labelledby="nav-ready-tab">
+        <div class="row">
+            <div class="col-6">
+                <div class="card border-info">
+                    <div class="card-header text-info">
+                        <h3>{{ lang('claim_tab_returned_title') }}</h3>
+                        <h6 class="card-subtitle text-muted">{{ lang('claim_tab_returned_desc') }}</h6>
+                    </div>
+                    <div class="card-body table-responsive">
+                        <table class="table table-hover table-striped table-bordered" id="returned-payments">
+                            <thead>
+                                <tr class="bg-info text-white">
+                                    <th scope="col">{{ lang('col_id') }}</th>
+                                    <th scope="col">{{ lang('col_payment_no') }}</th>
+                                    <th scope="col">{{ lang('col_tf_amt') }}</th>
+                                    <th scope="col">{{ lang('col_memb_ref_no') }}</th>
+                                    <th scope="col">{{ lang('col_pocy_ref_no') }}</th>
+                                    <th scope="col">{{ lang('col_upd_date') }}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for payment in returned_payments %}
+                                <tr>
+                                    {% if payment.CL_TYPE == 'P' and payment.PROV_NAME in hold_providers %}
+                                    <th scope="col" class="text-right"><i class="fas fa-lock"></i> {{ payment.PARQ_ID }}</th>
+                                    <td scope="col">{{ payment.CL_NO }}-{{ payment.TF_TIMES }}</td>
+                                    {% else %}
+                                    <th scope="col" class="text-right"><a href="payments/{{ payment.PARQ_ID }}">{{ payment.PARQ_ID }}</a></th>
+                                    <td scope="col"><a href="payments/{{ payment.PARQ_ID }}">{{ payment.CL_NO }}-{{ payment.TF_TIMES }}</a></td>
+                                    {% endif %}
+                                    <td scope="col" class="text-right">{{ payment.TF_AMT|number_format }}</td>
+                                    <td scope="col">{{ payment.MEMB_REF_NO }}</td>
+                                    <td scope="col">{{ payment.POCY_REF_NO }}</td>
+                                    <td scope="col">{{ payment.UPD_DATE }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6">
+                <div class="card border-warning">
+                    <div class="card-header text-warning">
+                        <h3>{{ lang('claim_tab_waiting_title') }}</h3>
+                        <h6 class="card-subtitle text-muted">{{ lang('claim_tab_waiting_desc') }}</h6>
+                    </div>
+                    <div class="card-body table-responsive">
+                        <table class="table table-hover table-striped table-bordered" id="ready-payments">
+                            <thead>
+                                <tr class="bg-warning text-white">
+                                    <th scope="col">{{ lang('col_id') }}</th>
+                                    <th scope="col">{{ lang('col_payment_no') }}</th>
+                                    <th scope="col">{{ lang('col_tf_amt') }}</th>
+                                    <th scope="col">{{ lang('col_memb_ref_no') }}</th>
+                                    <th scope="col">{{ lang('col_pocy_ref_no') }}</th>
+                                    <th scope="col">{{ lang('col_upd_date') }}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for payment in ready_payments %}
+                                <tr>
+                                    {% if payment.CL_TYPE == 'P' and payment.PROV_NAME in hold_providers %}
+                                    <th scope="col" class="text-right"><i class="fas fa-lock"></i> {{ payment.PARQ_ID }}</th>
+                                    <td scope="col">{{ payment.CL_NO }}-{{ payment.TF_TIMES }}</td>
+                                    {% else %}
+                                    <th scope="col" class="text-right"><a href="payments/{{ payment.PARQ_ID }}">{{ payment.PARQ_ID }}</a></th>
+                                    <td scope="col"><a href="payments/{{ payment.PARQ_ID }}">{{ payment.CL_NO }}-{{ payment.TF_TIMES }}</a></td>
+                                    {% endif %}
+                                    <td scope="col" class="text-right">{{ payment.TF_AMT|number_format }}</td>
+                                    <td scope="col">{{ payment.MEMB_REF_NO }}</td>
+                                    <td scope="col">{{ payment.POCY_REF_NO }}</td>
+                                    <td scope="col">{{ payment.UPD_DATE }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block script %}
+<script type="text/javascript" src="{{ base_url() }}assets/js/datatables.min.js"></script>
+<script>
+$('#main-claims').addClass('active');
+$('#new-payments, #reviewed-payments, #returned-payments, #ready-payments').DataTable({
+    lengthChange: false,
+    "order": [[ 5, "asc" ]]
+});
+$('#rejected-payments, #deleted-payments').DataTable({
+    lengthChange: false,
+    "order": [[ 5, "desc" ]]
+});
+</script>
+{% endblock %}

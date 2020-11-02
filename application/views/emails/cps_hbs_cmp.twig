@@ -1,0 +1,49 @@
+<html lang="en">
+    <head>
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta charset="UTF-8">
+    </head>
+    <body>
+        <p>Location Server: 192.168.0.10</p>
+        <p>Time: {TIME}</p>
+        <h3 style="color:green">Compare CPS Data with HBS Data</h3>
+        <p>Same Claim No but different Mantis ID: </p>
+        <table cellspacing="1" style="border:2px dashed #FB4314;width:300px">
+            <thead>
+                <tr style="background-color:#007bff;color:white;">
+                    <th width="33%">Claim No</th>
+                    <th width="33%">CPS Mantis ID</th>
+                    <th width="33%">HBS Mantis ID</th>
+                </tr>
+            </thead>
+            <tbody>
+                {result_1}
+                <tr>
+                    <th width="33%">{cl_no}</th>
+                    <td width="33%">{cps_bug_id}</td>
+                    <td width="33%">{hbs_bug_id}</td>
+                </tr>
+                {/result_1}
+            </tbody>
+        </table>
+        <p>Same Mantis ID but different Claim No: </p>
+        <table cellspacing="1" style="border:2px dashed #FB4314;width:300px">
+            <thead>
+                <tr style="background-color:#007bff;color:white;">
+                    <th width="33%">Mantis ID</th>
+                    <th width="33%">CPS Claim No</th>
+                    <th width="33%">HBS Claim No</th>
+                </tr>
+            </thead>
+            <tbody>
+                {result_2}
+                <tr>
+                    <th width="33%">{bug_id}</th>
+                    <td width="33%">{cps_cl_no}</td>
+                    <td width="33%">{hbs_cl_no}</td>
+                </tr>
+                {/result_2}
+            </tbody>
+        </table>
+    </body>
+</html>

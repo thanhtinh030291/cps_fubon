@@ -1,0 +1,78 @@
+{% extends "skeleton.twig" %}
+
+{% block css %}
+<link href="{{ base_url() }}assets/css/datatables.min.css" rel="stylesheet">
+{% endblock %}
+
+{% block body %}
+<div class="container-fluid">
+    <h1 class="text-primary">{{ lang('menu_cs') }}</h1>
+    <div class="row">
+        <div class="col-12">
+            <div class="card border-info">
+                <div class="card-header text-info">
+                    <div class="row">
+                        <div class="col-12">
+                            <h3>{{ lang('cs_title') }}</h3>
+                            <h6 class="card-subtitle text-muted">{{ lang('cs_desc') }}</h6>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body table-responsive">
+                    <table class="table table-hover table-striped table-bordered" id="payments-table">
+                        <thead>
+                            <tr class="bg-info text-white">
+                                <th scope="col">{{ lang('col_id') }}</th>
+                                <th scope="col">{{ lang('col_payment_no') }}</th>
+                                <th scope="col">{{ lang('col_tf_amt') }}</th>
+                                <th scope="col">{{ lang('col_memb_ref_no') }}</th>
+                                <th scope="col">{{ lang('col_memb_name') }}</th>
+                                <th scope="col">{{ lang('col_pocy_ref_no') }}</th>
+                                <th scope="col">{{ lang('col_req_date') }}</th>
+                                <th scope="col">{{ lang('col_app_date') }}</th>
+                                <th scope="col">{{ lang('cs_col_late_days') }}</th>
+                                <th scope="col">{{ lang('col_payment_method') }}</th>
+                                <th scope="col">{{ lang('col_pp_no') }}</th>
+                                <th scope="col">{{ lang('col_pp_date') }}</th>
+                                <th scope="col">{{ lang('col_pp_place') }}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for payment in payments %}
+                            {% set difference = date(payment.APP_DATE).diff(date()) %}
+                            <tr {% if difference.days >= 7 %} class="bg-danger text-white" {% endif %}>
+                                <th scope="col">{{ payment.PARQ_ID }}</th>
+                                <td scope="col">{{ payment.CL_NO }}-{{ payment.TF_TIMES }}</td>
+                                <td scope="col">{{ payment.TF_AMT }}</td>
+                                <td scope="col">{{ payment.MEMB_REF_NO }}</td>
+                                <td scope="col">{{ payment.MEMB_NAME }}</td>
+                                <td scope="col">{{ payment.POCY_REF_NO }}</td>
+                                <td scope="col">{{ payment.REQ_DATE }}</td>
+                                <td scope="col">{{ payment.APP_DATE }}</td>
+                                
+                                <td scope="col">{{ difference.days }}</td>
+                                <td scope="col">{{ payment.PAYMENT_METHOD }}</td>
+                                <td scope="col">{{ payment.PP_NO }}</td>
+                                <td scope="col">{{ payment.PP_DATE }}</td>
+                                <td scope="col">{{ payment.PP_PLACE }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block script %}
+<script type="text/javascript" src="{{ base_url() }}assets/js/datatables.min.js"></script>
+<script>
+$('#cs').addClass('active');
+$('#payments-table').DataTable({
+    lengthChange: false,
+    "order": [[ 7, "asc" ]],
+});
+</script>
+{% endblock %}

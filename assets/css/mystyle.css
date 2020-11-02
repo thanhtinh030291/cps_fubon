@@ -1,0 +1,17 @@
+table {white-space:nowrap}
+.large-size {font-size:60px}
+.text-finance {color:#660066}
+.text-leader {color:#ff4000}
+.text-director {color:#c00000}
+a:hover.text-finance {color:#990099}
+a:hover.text-leader {color:#cc3300}
+a:hover.text-director {color:#e60000}
+.bg-finance {background-color:#660066}
+.bg-leader {background-color:#ff4000}
+.bg-director {background-color:#c00000}
+.bg-hold {background-color:#ff9999 !important}
+.border-finance {border-color:#660066}
+.border-leader {border-color:#ff4000}
+.border-director {border-color:#c00000}
+.btn-excel {color:fff;background-color:#006622;border-color:#006622}
+.btn-max-width{max-width: 200px;}

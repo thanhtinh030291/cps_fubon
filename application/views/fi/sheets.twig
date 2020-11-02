@@ -1,0 +1,96 @@
+{% extends "skeleton.twig" %}
+
+{% block css %}
+<link href="{{ base_url() }}assets/css/datatables.min.css" rel="stylesheet">
+{% endblock %}
+
+{% block style %}
+.large-size {font-size:80px}
+{% endblock %}
+
+{% block body %}
+<div class="row my-3">
+    <div class="col-12">
+        <div class="card border-info">
+            <div class="card-body">
+                <div class="card-deck mx-auto text-center">
+                {% set lastRow = 0 %}
+                {% for sheet in sheets %}
+                    <div class="card border-success mb-3">
+                        <div class="card-header bg-success text-white">
+                            <h5>{{ sheet.SHEET_NAME }}</h5>
+                            <h6>{{ sheet.SHEET_UNAME }}
+                                <a href="#" title="{{ lang('fi_sheets_edit_btn') }}" data-toggle="modal" data-target="#edit_{{ sheet.SHEET_ID }}">
+                                    <i class="fas fa-pen-square text-white"></i>
+                                </a>
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <h1 class="card-title font-weight-bold large-size"><a href="{{ base_url() }}index.php/fi/sheet/{{ sheet.SHEET_ID }}" class="card-link text-primary">{{ sheet.n_payments }}</a></h1>
+                            <h3 class="card-title font-weight-bold text-danger">VND {{ sheet.total_amt|number_format }}</h3>
+                        </div>
+                    </div>
+                    {% if loop.index is divisible by(4) %}
+                    </div>
+                    <div class="card-deck mx-auto text-center">
+                    {% endif %}
+                    {% if loop.last %}
+                        {% set lastRow = loop.length % 4 %}
+                    {% endif %}
+                {% endfor %}
+                {% for sheet in transferring_sheets %}
+                    <div class="card border-warning mb-3">
+                        <div class="card-header bg-warning text-white">
+                            <h5>{{ sheet.SHEET_NAME }}</h5>
+                            <h6>{{ sheet.SHEET_UNAME }}&nbsp</h6>
+                        </div>
+                        <div class="card-body">
+                            <h1 class="card-title font-weight-bold large-size"><a href="{{ base_url() }}index.php/fi/vcbsheet/{{ sheet.SHEET_ID }}" class="card-link text-warning">{{ sheet.n_payments }}</a></h1>
+                            <h3 class="card-title font-weight-bold text-danger">VND {{ sheet.total_amt|number_format }}</h3>
+                        </div>
+                    </div>
+                    {% if (loop.index + lastRow) is divisible by(4) %}
+                    </div>
+                    <div class="card-deck mx-auto text-center">
+                    {% endif %}
+                {% endfor %}
+                {% for i in 0..(3 - (transferring_sheets|length + lastRow) % 4) %}
+                    <div class="card border-light mb-3"></div>
+                {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% for sheet in sheets %}
+<div class="modal fade" id="edit_{{ sheet.SHEET_ID }}" tabindex="-1" role="dialog" aria-labelledby="confirmTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title text-info" id="confirmTitle">{{ lang('fi_sheets_edit_title') }}</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form class="was-validated" role="form" enctype="multipart/form-data" method="post" action="{{ base_url() }}index.php/fi/edit">
+                <div class="modal-body">
+                    <input type="text" class="form-control" maxlength="100" name="sheet_uname" value="{{ sheet.SHEET_UNAME }}" required>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ lang('fi_modal_no_btn') }}</button>
+                    <button type="submit" class="btn btn-success">{{ lang('fi_modal_yes_btn') }}</button>
+                </div>
+                <!-- Hidden -->
+                <input type="hidden" name="sheet_id" value="{{ sheet.SHEET_ID }}">
+            </form>
+        </div>
+    </div>
+</div>
+{% endfor %}
+{% endblock %}
+
+{% block script %}
+<script>
+$('#fi-claimant').addClass('active');
+</script>
+{% endblock %}

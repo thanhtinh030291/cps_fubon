@@ -1,0 +1,56 @@
+<div class="row">
+    <div class="col-12">
+        <div class="card border-info">
+            <div class="card-header text-info">
+                <h3>{{ page_header }}</h3>
+                <h6 class="card-subtitle text-muted">{{ page_subtitle }}</h6>
+            </div>
+            <div class="card-body table-responsive">
+                <table class="table table-hover table-striped table-bordered">
+                    <thead>
+                        <tr class="bg-info text-white">
+                            <th scope="col">{{ lang('col_id') }}</th>
+                            <th scope="col">{{ lang('col_payment_no') }}</th>
+                            <th scope="col">{{ lang('col_mantis_id') }}</th>
+                            <th scope="col">{{ lang('col_tf_amt') }}</th>
+                            <th scope="col">{{ lang('col_pres_amt') }}</th>
+                            <th scope="col">{{ lang('col_app_amt') }}</th>
+                            <th scope="col">{{ lang('col_memb_ref_no') }}</th>
+                            <th scope="col">{{ lang('col_pocy_ref_no') }}</th>
+                            <th scope="col">{{ lang('col_upd_date') }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for payment in payments %}
+                        <tr>
+                            <th scope="col" class="text-right">
+                                {{ payment.PARQ_ID }}
+                                {% if payment.YN_NEW == 'Y' %}
+                                <span class="float-left"><i class="fas fa-undo"></i></span>
+                                {% endif %}
+                            </th>
+                            <td scope="col">
+                                <a href="{{ base_url() }}index.php/payments/{{ payment.PARQ_ID }}">{{ payment.CL_NO }}-{{ payment.TF_TIMES }}</a>
+                                {% if payment.YN_HOLD == 'Y' %}
+                                <span class="text-danger float-right" title="hold"><i class="fas fa-lock"></i></span>
+                                {% endif %}
+                            </td>
+                            <td scope="col" class="text-right">
+                                {% if payment.MANTIS_ID != '' %}
+                                <a class="text-success" href="{{ mantis_view ~ payment.MANTIS_ID }}">{{ payment.MANTIS_ID }}</a>
+                                {% endif %}
+                            </td>
+                            <td scope="col" class="text-right">{{ payment.TF_AMT|number_format }}</td>
+                            <td scope="col" class="text-right">{{ payment.PRES_AMT|number_format }}</td>
+                            <td scope="col" class="text-right">{{ payment.APP_AMT|number_format }}</td>
+                            <td scope="col">{{ payment.MEMB_REF_NO }}</td>
+                            <td scope="col">{{ payment.POCY_REF_NO }}</td>
+                            <td scope="col">{{ payment.UPD_DATE }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

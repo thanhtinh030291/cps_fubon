@@ -1,0 +1,18 @@
+{% extends "skeleton.twig" %}
+
+{% block css %}
+<link href="{{ base_url() }}assets/css/docsearch.min.css" rel="stylesheet">
+{% endblock %}
+
+{% block body %}
+<div class="container-fluid">
+    <div class="row flex-xl-nowrap">
+        <div class="col-12 col-md-3 col-xl-2 bd-sidebar"></div>
+        <main class="col-12 col-md-9 col-xl-8 py-md-3 pl-md-5 bd-content" role="main">
+            <h1 class="bd-title" id="content">{{ lang('home_forbidden_title') }}</h1>
+            <p>{{ lang('home_forbidden_desc') }}</p>
+        </main>
+    </div>
+</div>
+{% endblock %}
+

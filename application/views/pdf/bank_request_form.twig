@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <head>
+        
+        <style>
+        @font-face {
+            font-family: "DejaVu Sans";
+            font-style: normal;
+            font-weight: 200;
+            src: url("/fonts/dejavu-sans/DejaVuSans.ttf");
+            /* IE9 Compat Modes */
+            src: 
+                local("DejaVu Sans"), 
+                local("DejaVu Sans"), 
+                url("/fonts/dejavu-sans/DejaVuSans.ttf") format("truetype");
+            }
+            h1, .h1 {
+            font-size: 2.5rem;
+            }
+
+            h2, .h2 {
+            font-size: 2rem;
+            }
+
+            h3, .h3 {
+            font-size: 1.75rem;
+            }
+
+            h4, .h4 {
+            font-size: 1.5rem;
+            }
+
+            h5, .h5 {
+            font-size: 1.25rem;
+            }
+
+            h6, .h6 {
+            font-size: 1rem;
+            }
+
+            
+            body { 
+            font-family: "DejaVu Sans";
+            font-size:
+            }
+            .font-weight-bold {
+                font-size: 10px;
+            }
+            table { 
+                width: 110%; 
+                }
+
+            /* Zebra striping */
+            tr:nth-of-type(odd) { 
+                }
+
+            th { 
+                font-weight: bold;
+                font-size: 12px;
+                }
+
+            td, th { 
+                padding: 5px; 
+                text-align: left; 
+                font-size: 10px;
+                }
+            p {
+                margin-top: 0;
+                margin-bottom: 0.5rem;
+                font-size: 12px;
+                }
+        </style>
+    </head>
+</head>
+<body>
+    <h5 style="text-align: center;width: 85%; margin-left: 50px;">GIẤY ĐỀ NGHỊ</h5>
+    <p style="text-align: center;width: 85%; margin-left: 50px;font-size: 12px;">APPLICATION TO THE THE BANK FOR FOREIGN TRADE OF VIETNAM</p>
+    <div style="position: absolute; left: 45px; top: 15px;">
+        <img src="{{ base_url() }}assets/img/claim_fund_logo.png" width="90px">
+    </div>
+    <br>
+    <p>TÊN NGƯỜI YÊU CẦU: <span style="font-weight: bold;">CÔNG TY TNHH MỘT THÀNH VIÊN PACIFIC CROSS VIỆT NAM</span></p>
+    <p>Name of applicant:</p>
+    <p>HỘ CHIẾU SỐ:.............................................   CẤP NGÀY: ................. </p>
+    <p>Passport No.:............................................</p>
+    <p>ĐỊA CHỈ Ở VIỆT NAM: <span style="font-weight: bold;">235 - Nguyễn Văn Cừ - P. Nguyễn Cư Trinh - Quận 1 - TP. HCM</span></p>
+    <p>Address in Vietnam: </p>
+    <p>NỘP VÀO NGÂN HÀNG NGOẠI THƯƠNG VIỆT NAM </p>
+    <p>Remit to The Bank For Foreign Trade of Vietnam:</p>
+    <table>
+        <thead>
+            <tr>
+                <th style="width: 50% ;">TIỀN MẶT</th>
+                <th>
+                SÉC (SÉC DU LỊCH/S)
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td style="width: 50% ;">In Cash</td>
+                <td>
+                In cheque (Traveler cheque/Bank Draft)
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <p style="font-weight: bold;">ĐỀ NGHỊ NGÂN HÀNG NGOẠI THƯƠNG VIỆT NAM GHI NỢ TÀI KHOẢN CỦA </p>
+    <p>Request The Bank For Foreign Trade of Vietnam to debit our account:</p>
+
+    <p>TÔI/CHÚNG TÔI SỐ: <span style="font-weight: bold;">0071004622612</span></p>
+    <p>Account No.: </p>
+    <p>SỐ TIỀN BẰNG SỐ: <span style="font-weight: bold;">{{ payment.TF_AMT|number_format }} VND</span></p>
+    <p>With the sum of: </p>
+    <p>SỐ TIỀN BẰNG CHỮ: <span style="font-weight: bold;">{{ payment.TF_AMT_WORD }}</span></p>
+    <p>In words: </p>
+    <p>CHUYỂN TRẢ CHO: 
+    <span style="font-weight: bold;">
+    
+    </span>
+        {% if payment.PAYMENT_METHOD == 'CH' %}
+            <span style="font-weight: bold;">{{ payment.BENEFICIARY_NAME }}</span>
+        {% else %}
+            <span style="font-weight: bold;">{{ payment.ACCT_NAME }}</span>
+        {% endif %}
+    </p>
+    <p>Transfer to:</p>
+    <p>SỐ TÀI KHOẢN:
+        {% if payment.PAYMENT_METHOD == 'CH' %}
+            <span style="font-weight: bold;">0</span>
+        {% else %}
+            <span style="font-weight: bold;">{{ payment.ACCT_NO }}</span>
+        {% endif %}
+    </p>
+    <p>Account No.: </p>
+    <p>TẠI NGÂN HÀNG: <span style="font-weight: bold;">{{ payment.BANK_NAME }} - {{ payment.BANK_CITY }} - {{ payment.BANK_BRANCH }}</span></p>
+    <p>With: </p>
+    <p>NỘI DUNG THANH TOÁN:
+        <span style="font-weight: bold;">{{ payment.DESC }}</span>
+    </p>
+    <p>Details of payment:
+        
+    </p>
+    <p>CHÚNG TÔI XIN CAM KẾT TUÂN THỦ ĐÚNG MỌI QUY ĐỊNH VỀ QUẢN LÝ NGOẠI HỐI CỦA NƯỚC CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM</p>
+    <p>We undertake to comply strictly with Foreign Exchange Regulations in force in Vietnam.</p>
+    <br><br>
+    <table>
+        <thead>
+            <tr>
+                <th style="width: 50% ; font-size: 14px;">Chief Accountant</th>
+                <th>
+                <p>TP. HỒ CHÍ MINH, NGÀY {{ "now"|date("m/d/Y") }} </p>
+                <p>(On behalf of) Chief Executive Officer</p>
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+
+</body>
+</html>

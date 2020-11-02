@@ -1,0 +1,174 @@
+{% extends "skeleton.twig" %}
+
+{% block css %}
+<link href="{{ base_url() }}assets/css/datatables.min.css" rel="stylesheet">
+{% endblock %}
+
+{% block body %}
+<div class="row my-3">
+    <div class="col-12">
+        <div class="card border-info">
+            <div class="card-header text-info">
+                <div class="row">
+                    <div class="col-12">
+                        <h3>{{ lang('foreigner_title') }}</h3>
+                        <h6 class="card-subtitle text-muted">{{ lang('foreigner_desc') }}</h6>
+                    </div>
+                </div>
+                <form class="was-validated" role="form" enctype="multipart/form-data" method="post" action="{{ base_url() }}index.php/foreigner/add">
+                    <div class="form-row">
+                        <div class="form-group col-3">
+                            <label for="acct_name" class="col-form-label text-right"><b>{{ lang('col_acct_name') }}</b></label>
+                            <input type="text" maxlength="100" class="form-control" id="acct_name" name="acct_name" autocomplete="off" required>
+                        </div>
+                        <div class="form-group col-3">
+                            <label for="acct_no" class="col-form-label text-center"><b>{{ lang('col_acct_no') }}</b></label>
+                            <input type="text" maxlength="30" class="form-control" id="acct_no" name="acct_no" autocomplete="off" required>
+                        </div>
+                        <div class="form-group col-3">
+                            <label for="bank_branch" class="col-form-label text-center"><b>{{ lang('col_bank_branch') }}</b></label>
+                            <input type="text" maxlength="100" class="form-control" id="bank_branch" name="bank_branch" autocomplete="off">
+                        </div>
+                        <div class="form-group col-3">
+                            <label for="bank_city" class="col-form-label text-center"><b>{{ lang('col_bank_city') }}</b></label>
+                            <input type="text" maxlength="100" class="form-control" id="bank_city" name="bank_city" autocomplete="off">
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-danger" name="btnAdd"><i class="fas fa-plus"></i> {{ lang('foreigner_add_btn') }}</button>
+                </form>
+            </div>
+            <div class="card-body table-responsive">
+                <table class="table table-hover table-striped table-bordered">
+                    <thead>
+                        <tr class="bg-info text-white">
+                            <th scope="col">{{ lang('col_id') }}</th>
+                            <th scope="col">{{ lang('col_acct_name') }}</th>
+                            <th scope="col">{{ lang('col_acct_no') }}</th>
+                            <th scope="col">{{ lang('col_bank_branch') }}</th>
+                            <th scope="col">{{ lang('col_bank_city') }}</th>
+                            <th scope="col">{{ lang('col_upd_date') }}</th>
+                            <th scope="col"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in foreigners %}
+                        <tr>
+                            <th scope="col" class="text-right">{{ row.FORN_ID }}</th>
+                            <td scope="col">{{ row.ACCT_NAME }}</td>
+                            <td scope="col">{{ row.ACCT_NO }}
+                            <a href="#" title="edit" data-toggle="modal" data-target="#edit_{{ row.FORN_ID }}"><i class="fas fa-pen-square text-warning"></i></a>
+                            </td>
+                            <td scope="col">{{ row.BANK_BRANCH }}</td>
+                            <td scope="col">{{ row.BANK_CITY }}</td>
+                            <td scope="col">{{ row.UPD_DATE|date('d/m/Y H:i:s') }}</td>
+                            <td scope="col"><a href="#" title="delete" data-toggle="modal" data-target="#del_{{ row.FORN_ID }}"><i class="fas fa-times text-danger"></i></a></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% for row in foreigners %}
+<div class="modal fade" id="edit_{{ row.FORN_ID }}" tabindex="-1" role="dialog" aria-labelledby="confirmTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title text-danger" id="confirmTitle">{{ lang('foreigner_edit_title')|format(row.ACCT_NO) }}</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form class="was-validated" role="form" enctype="multipart/form-data" method="post" action="{{ base_url() }}index.php/foreigner/edit">
+                <div class="modal-body">
+                    <div class="form-group row">
+                        <label for="acct_no" class="col-5 col-form-label text-info"><b>{{ lang('col_acct_no') }}</b></label>
+                        <div class="col-7">
+                            <input type="text" class="form-control" name="acct_no" value="{{ row.ACCT_NO }}" disabled>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="acct_name" class="col-5 col-form-label text-info"><b>{{ lang('col_acct_name') }}</b></label>
+                        <div class="col-7">
+                            <input type="text" class="form-control" name="acct_name" value="{{ row.ACCT_NAME }}" required>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="bank_branch" class="col-5 col-form-label text-info"><b>{{ lang('col_bank_branch') }}</b></label>
+                        <div class="col-7">
+                            <input type="text" class="form-control" name="bank_branch" value="{{ row.BANK_BRANCH }}">
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="bank_city" class="col-5 col-form-label text-info"><b>{{ lang('col_bank_city') }}</b></label>
+                        <div class="col-7">
+                            <input type="text" class="form-control" name="bank_city" value="{{ row.BANK_CITY }}">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
+                    <button type="submit" class="btn btn-danger">Yes</button>
+                </div>
+                <!-- Hidden -->
+                <input type="hidden" name="forn_id" value="{{ row.FORN_ID }}">
+            </form>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="del_{{ row.FORN_ID }}" tabindex="-1" role="dialog" aria-labelledby="confirmTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title text-danger" id="confirmTitle">{{ lang('foreigner_del_title')|format(row.ACCT_NO) }}</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form class="was-validated" role="form" enctype="multipart/form-data" method="post" action="{{ base_url() }}index.php/foreigner/delete">
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
+                    <button type="submit" class="btn btn-danger">Yes</button>
+                </div>
+                <!-- Hidden -->
+                <input type="hidden" name="forn_id" value="{{ row.FORN_ID }}">
+            </form>
+        </div>
+    </div>
+</div>
+{% endfor %}
+{% endblock %}
+
+{% block script %}
+<script type="text/javascript" src="{{ base_url() }}assets/js/datatables.min.js"></script>
+<script>
+$( document ).ready( function() {
+    $( '#fi-claimant' ).addClass( 'active' );
+    $( 'table thead tr' ).clone( true ).appendTo( 'table thead' );
+    $( 'table thead tr:eq(1) th' ).each( function (i) {
+        if ( i == 0 || i == 6 ) {
+            $( this ).html( '' );
+        } else {
+            var title = $( this ).text();
+            $( this ).html( '<input type="text" class="form-control">' );
+        }
+ 
+        $( 'input', this ).on( 'keyup change', function () {
+            if ( table.column( i ).search() !== this.value ) {
+                table
+                    .column( i )
+                    .search( this.value )
+                    .draw();
+            }
+        } );
+    } );
+    var table = $( 'table' ).DataTable( {
+        lengthChange: false,
+        order: [[ 0, "asc" ]],
+        fixedHeader: true,
+        orderCellsTop: true,
+    } );
+} );
+</script>
+{% endblock %}

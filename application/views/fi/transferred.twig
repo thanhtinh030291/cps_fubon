@@ -1,0 +1,164 @@
+{% extends "skeleton.twig" %}
+
+{% block css %}
+<link href="{{ base_url() }}assets/css/jquery-ui.min.css" rel="stylesheet">
+<link href="{{ base_url() }}assets/css/datatables.min.css" rel="stylesheet">
+{% endblock %}
+
+{% block body %}
+<div class="row my-3">
+    <div class="col-12">
+        <div class="card border-primary mb-3">
+            <div class="card-header text-primary">
+                <form role="form" enctype="multipart/form-data" method="post">
+                    <div class="form-row">
+                        <div class="form-group col-2">
+                            <label for="cl_no" class="col-form-label"><b>{{ lang('col_cl_no') }}</b></label>
+                            <input type="number" class="form-control" min="1401010001" max="{{ now|date('ymd') ~ '0001' }}" id="cl_no" name="cl_no" value="{{ post.cl_no }}" autocomplete="off">
+                        </div>
+                        <div class="form-group col-3">
+                            <label for="tf_status_id" class="col-form-label"><b>{{ lang('col_tf_status') }}</b></label>
+                            <select class="form-control selectpicker" data-live-search="true" id="tf_status_id" name="tf_status_id">
+                                <option></option>
+                                {% for status in transfer_status %}
+                                <option value="{{ status.TF_STATUS_ID }}" data-tokens="{{ status.TF_STATUS_NAME }}" {% if post.tf_status_id == status.TF_STATUS_ID %} selected {% endif %}>{{ status.TF_STATUS_NAME }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group col-2">
+                            <label for="prov_name" class="col-form-label"><b>{{ lang('col_pocy_ref_no') }}</b></label>
+                            <input type="number" class="form-control" min="1000000" max="9000000" id="pocy_ref_no" name="pocy_ref_no" value="{{ post.pocy_ref_no }}" autocomplete="off">
+                        </div>
+                        <div class="form-group col-2">
+                            <label for="prov_name" class="col-form-label"><b>{{ lang('col_memb_ref_no') }}</b></label>
+                            <input type="number" class="form-control" id="memb_ref_no" name="memb_ref_no" value="{{ post.memb_ref_no }}" autocomplete="off">
+                        </div>
+                        <div class="form-group col-3">
+                            <label for="req_date_from" class="col-form-label text-right"><b>{{ lang('col_memb_name') }}</b></label>
+                            <input type="text" class="form-control" id="memb_name" name="memb_name" value="{{ post.memb_name }}" autocomplete="off">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-2">
+                            <label for="tf_date_from" class="col-form-label text-right"><b>{{ lang('fi_transferred_date_from') }}</b></label>
+                            <input type="text" class="form-control date" id="tf_date_from" name="tf_date_from" value="{{ post.tf_date_from }}" autocomplete="off">
+                        </div>
+                        <div class="form-group col-2">
+                            <label for="tf_date_to" class="col-form-label text-center"><b>{{ lang('fi_transferred_date_to') }}</b></label>
+                            <input type="text" class="form-control date" id="tf_date_to" name="tf_date_to" value="{{ post.tf_date_to }}" autocomplete="off">
+                        </div>
+                        <div class="form-group col-2">
+                            <label for="app_date_from" class="col-form-label text-right"><b>{{ lang('fi_transferred_app_date_from') }}</b></label>
+                            <input type="text" class="form-control date" id="app_date_from" name="app_date_from" value="{{ post.app_date_from }}" autocomplete="off">
+                        </div>
+                        <div class="form-group col-2">
+                            <label for="app_date_to" class="col-form-label text-right"><b>{{ lang('fi_transferred_app_date_to') }}</b></label>
+                            <input type="text" class="form-control date" id="app_date_to" name="app_date_to" value="{{ post.app_date_to }}" autocomplete="off">
+                        </div>
+                        <div class="form-group col-2">
+                            <label for="upd_date_from" class="col-form-label text-right"><b>{{ lang('fi_transferred_upd_date_from') }}</b></label>
+                            <input type="text" class="form-control date" id="upd_date_from" name="upd_date_from" value="{{ post.upd_date_from }}" autocomplete="off">
+                        </div>
+                        <div class="form-group col-2">
+                            <label for="upd_date_to" class="col-form-label text-right"><b>{{ lang('fi_transferred_upd_date_to') }}</b></label>
+                            <input type="text" class="form-control date" id="upd_date_to" name="upd_date_to" value="{{ post.upd_date_to }}" autocomplete="off">
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-danger" name="btnSearch">{{ lang('menu_search') }}</button>
+                </form>
+            </div>
+            {% if post %}
+            <div class="card-body table-responsive">
+                <table class="table table-hover table-striped table-bordered">
+                    <thead>
+                        <tr class="bg-info text-white">
+                            <th scope="col">{{ lang('col_id') }}</th>
+                            <th scope="col">{{ lang('col_cl_no') }}</th>
+                            <th scope="col"><i class="fas fa-list-ol"></i></th>
+                            <th scope="col">{{ lang('col_tf_status') }}</th>
+                            <th scope="col">{{ lang('col_tf_amt') }}</th>
+                            <th scope="col">{{ lang('col_tf_date') }}</th>
+                            <th scope="col">{{ lang('col_sheet') }}</th>
+                            <th scope="col">{{ lang('col_vcb_seq') }}</th>
+                            <th scope="col">VCB CODE</th>
+                            <th scope="col">{{ lang('col_cl_user') }}</th>
+                            <th scope="col">{{ lang('col_cl_type') }}</th>
+                            <th scope="col">{{ lang('col_deduct_amt') }}</th>
+                            <th scope="col">{{ lang('col_disc_amt') }}</th>
+                            <th scope="col">{{ lang('col_payment_method') }}</th>
+                            <th scope="col">{{ lang('col_bank_name') }}</th>
+                            <th scope="col">{{ lang('col_acct_no') }}</th>
+                            <th scope="col">{{ lang('col_acct_name') }}</th>
+                            <th scope="col">{{ lang('col_bank_city') }}</th>
+                            <th scope="col">{{ lang('col_bank_branch') }}</th>
+                            <th scope="col">{{ lang('col_beneficiary_name') }}</th>
+                            <th scope="col">{{ lang('col_pp_date') }}</th>
+                            <th scope="col">{{ lang('col_pp_place') }}</th>
+                            <th scope="col">{{ lang('col_pp_no') }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for payment in payments %}
+                        <tr>
+                            <th class="text-right"><a href="{{ base_url() }}index.php/payments/{{ payment.PAYM_ID }}">{{ payment.PAYM_ID }}</a></th>
+                            <td>{{ payment.CL_NO }}</td>
+                            <td class="text-right">{{ payment.PAYMENT_TIME }}</td>
+                            <td class="text-right">
+                            {% if (payment.TF_STATUS_NAME == 'NEW') and (payment.REASON != null) %}
+                                RENEW
+                            {% else %}
+                                {{ payment.TF_STATUS_NAME }}
+                            {% endif %}
+                            </td>
+                            <td class="text-right">{{ payment.TF_AMT|number_format }}</td>
+                            <td>{% if payment.TF_DATE %}{{ payment.TF_DATE|date('d/m/Y') }}{% endif %}</td>
+                            <td>
+                                {% if payment.SHEET_ID %}
+                                    {% if payment.SHEET_STATUS == constant('SHEET_STATUS_SHEET')  %}
+                                <a href="{{ base_url() }}index.php/fi/sheet/{{ payment.SHEET_ID }}">{{ payment.SHEET_NAME }}</a>
+                                    {% else %}
+                                <a href="{{ base_url() }}index.php/fi/vcbsheet/{{ payment.SHEET_ID }}">{{ payment.SHEET_NAME }}</a>
+                                    {% endif %}
+                                {% endif %}
+                            </td>
+                            <td>{{ payment.VCB_SEQ }}</td>
+                            <td>{{ payment.VCB_CODE }}</td>
+                            <td>{{ payment.CL_USER }}</td>
+                            <td>{{ payment.CL_TYPE }}</td>
+                            <td>{{ payment.DEDUCT_AMT|number_format }}</td>
+                            <td>{{ payment.DISC_AMT|number_format }}</td>
+                            <td>{{ payment.PAY_METHOD }}</td>
+                            <td>{{ payment.BANK_NAME }}</td>
+                            <td>{{ payment.ACCT_NO }}</td>
+                            <td>{{ payment.ACCT_NAME }}</td>
+                            <td>{{ payment.BANK_CITY }}</td>
+                            <td>{{ payment.BANK_BRANCH }}</td>
+                            <td>{{ payment.BENEFICIARY_NAME }}</td>
+                            <td>{% if payment.PP_DATE %}{{ payment.PP_DATE|date('d/m/Y') }}{% endif %}</td>
+                            <td>{{ payment.PP_PLACE }}</td>
+                            <td>{{ payment.PP_NO }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block script %}
+<script type="text/javascript" src="{{ base_url() }}assets/js/jquery-ui.min.js"></script>
+<script type="text/javascript" src="{{ base_url() }}assets/js/datatables.min.js"></script>
+<script>
+$('#fi-transferred-refund').addClass('active');
+$('.date').datepicker({
+    dateFormat: 'dd/mm/yy'
+});
+$( 'table' ).DataTable( {
+    lengthChange: false,
+    order: [[ 1, "asc" ]]
+} );
+</script>
+{% endblock %}

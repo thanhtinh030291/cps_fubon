@@ -1,0 +1,780 @@
+{% extends "skeleton.twig" %}
+
+{% block style %}
+.chat {list-style: none;margin:0;padding:0}
+.chat li {margin-bottom:10px;padding-bottom:5px;border-bottom:1px dotted #B3A9A9}
+.chat li.left .chat-body {margin-left:60px}
+.chat li.right .chat-body {margin-right:60px}
+.chat li .chat-body p {margin:0;color:#777777}
+.chat .fas {margin-right:5px}
+.card-scroll {overflow-y:scroll;height:250px}
+::-webkit-scrollbar-track {-webkit-box-shadow:inset 0 0 6px rgba(0,0,0,0.3);background-color:#F5F5F5}
+::-webkit-scrollbar {width:12px;background-color:#F5F5F5}
+::-webkit-scrollbar-thumb {-webkit-box-shadow:inset 0 0 6px rgba(0,0,0,.3);background-color:#555}
+{% endblock %}
+
+{% block css %}
+<link href="{{ base_url() }}assets/css/jquery-ui.min.css" rel="stylesheet">
+<link href="{{ base_url() }}assets/css/datatables.min.css" rel="stylesheet">
+{% endblock %}
+
+{% block body_title %}
+<h1 class="text-primary">
+    {{ lang('payment_title') }} #{{ payment.PAYM_ID }}
+    {% if payment.IS_DELETED %}
+    <span class="badge badge-secondary text-white">{{ lang('payment_deleted') }}</span>
+    {% else %}
+    <span class="badge badge-primary">{{ payment.TF_STATUS_NAME }}</span>
+        {% if payment.YN_HOLD == 'Y' %}
+    <span class="badge badge-danger text-white">{{ lang('payment_hold') }}</span>
+        {% endif %}
+    {% endif %}
+    <div class="btn-group" role="group" aria-label="Relationship">
+        {% for rel in relationship_payments %}
+            {% if rel.PAYMENT_TIME == payment.PAYMENT_TIME %}
+        <a href="{{ payment.PAYM_ID }}" class="btn btn-info">{{ payment.PAYMENT_TIME }}</a>
+            {% else %}
+        <a href="{{ rel.PAYM_ID }}" class="btn btn-outline-info">{{ rel.PAYMENT_TIME }}</a>
+            {% endif %}
+        {% endfor %}
+    </div>
+</h1>
+{% endblock %}
+
+{% block body %}
+<div class="progress mb-3">
+    {% if payment.PROGRESS >= 20 %}
+    <div class="progress-bar progress-bar-striped" role="progressbar" style="width: 20%" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100">20% - {{ lang('payment_role_cl_user') }}</div>
+    {% endif %}
+    {% if payment.PROGRESS >= 40 %}
+    <div class="progress-bar progress-bar-striped bg-leader" role="progressbar" style="width: 20%" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100">20% - {{ lang('payment_role_cl_leader') }}</div>
+    {% endif %}
+    {% if payment.PROGRESS >= 60 %}
+    <div class="progress-bar progress-bar-striped bg-danger" role="progressbar" style="width: 20%" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100">20% - {{ lang('payment_role_cl_manager') }}</div>
+    {% endif %}
+    {% if payment.PROGRESS >= 80 %}
+    <div class="progress-bar progress-bar-striped bg-director" role="progressbar" style="width: 20%" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100">20% - {{ lang('payment_role_cl_director') }}</div>
+    {% endif %}
+    {% if payment.PROGRESS >= 100 %}
+    <div class="progress-bar progress-bar-striped bg-finance" role="progressbar" style="width: 20%" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100">20% - {{ lang('payment_role_fi') }}</div>
+    {% endif %}
+</div>
+<div class="row mb-3">
+    <div class="col-6">
+        <div class="card border-primary text-center">
+            <div class="card-header bg-primary border-primary">
+                <h5 class="text-white">{{ lang('col_tf_amt') }}</h5>
+            </div>
+            <div class="card-body text-primary">
+                <h3 class="card-title font-weight-bolder display-1">{{ payment.TF_AMT|number_format }}</h3>
+            </div>
+            <div class="card-group">
+                <div class="card">
+                    <div class="card-header bg-danger">
+                        <span class="text-white">{{ lang('col_cl_user') }}</span>
+                    </div>
+                    {% if payment.CL_USER %}
+                    <div class="card-body">
+                        <button type="button" class="btn btn-outline-danger btn-lg" {% if popover_assign %} data-toggle="popover" data-content='
+                            <form class="form-inline was-validated" role="form" enctype="multipart/form-data" method="post" action="{{ base_url() }}index.php/payments/assign/{{ payment.PAYM_ID }}">
+                                <div class="form-group">
+                                    <select class="form-control" name="user_name" required>
+                                        {% for user in users %}
+                                        <option value="{{ user }}" {% if payment.CL_USER == user %} selected {% endif %}>{{ user }}</option>
+                                        {% endfor %}
+                                    </select> &nbsp
+                                    <button type="submit" class="btn btn-danger"><i class="fas fa-check"></i></button>
+                                </div>
+                            </form>'{% endif %} >
+                            <b>{{ payment.CL_USER }}</b>
+                        </button>
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="card">
+                    <div class="card-header bg-danger">
+                        <span class="text-white">{{ lang('col_deduct_amt') }}</span>
+                    </div>
+                    <div class="card-body text-danger">
+                        {% set max_deduct_amt = (payment.TF_AMT > debt ? debt : payment.TF_AMT) + payment.DEDUCT_AMT %}
+                        <button type="button" class="btn btn-outline-danger btn-lg" {% if popover_deduct and max_deduct_amt %} data-toggle="popover" data-content='
+                            <form class="form-inline was-validated" role="form" enctype="multipart/form-data" method="post" action="{{ base_url() }}index.php/payments/deduct/{{ payment.PAYM_ID }}">
+                                <div class="form-group">
+                                    <input type="number" class="form-control" name="deduct_amt" min="0" max="{{ max_deduct_amt }}" placeholder="New value" value="{{ payment.DEDUCT_AMT }}" required> &nbsp
+                                    <button type="submit" class="btn btn-danger"><i class="fas fa-check"></i></button>
+                                </div>
+                            </form>'{% endif %}>
+                            <b>{{ payment.DEDUCT_AMT|number_format }}</b>
+                        </button>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header bg-danger">
+                        <span class="text-white">{{ lang('col_disc_amt') }}</span>
+                    </div>
+                    <div class="card-body text-danger">
+                        {% set max_disc_amt = payment.TF_AMT + payment.DISC_AMT %}
+                        <button type="button" class="btn btn-outline-danger btn-lg" {% if popover_discount %} data-toggle="popover" data-content='
+                            <form class="form-inline was-validated" role="form" enctype="multipart/form-data" method="post" action="{{ base_url() }}index.php/payments/discount/{{ payment.PAYM_ID }}">
+                                <div class="form-group">
+                                    <input type="number" class="form-control" name="disc_amt" min="0" max="{{ max_disc_amt }}" placeholder="New value" value="{{ payment.DISC_AMT }}" required> &nbsp
+                                    <button type="submit" class="btn btn-danger"><i class="fas fa-check"></i></button>
+                                </div>
+                            </form>'{% endif %}>
+                            <b>{{ payment.DISC_AMT|number_format }}</b>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="card-group">
+                <div class="card">
+                    <div class="card-header bg-info text-white">{{ lang('payment_debt_title') }}</div>
+                    <div class="card-body text-info">
+                        <h4 class="card-title my-0">{{ debt|number_format }}</h4>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header bg-info text-white">{{ lang('col_pres_amt') }}</div>
+                    {% if payment.PRES_AMT %}
+                    <div class="card-body text-info">
+                        <h4 class="card-title my-0">{{ payment.PRES_AMT|number_format }}</h4>
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="card">
+                    <div class="card-header bg-info text-white">{{ lang('col_app_amt') }}</div>
+                    {% if payment.APP_AMT %}
+                    <div class="card-body text-info">
+                        <h4 class="card-title my-0">{{ payment.APP_AMT|number_format }}</h4>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 text-center">
+        <div class="card border-success mb-3">
+            <div class="card-group">
+                <div class="card">
+                    <div class="card-header bg-success text-white">{{ lang('col_cl_no') }}</div>
+                    <div class="card-body text-leader">
+                        <h5 class="card-title my-0">{{ payment.CL_NO }}</h5>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header bg-success text-white">{{ lang('col_mantis_id') }}</div>
+                    {% if payment.MANTIS_ID > 0 %}
+                    <div class="card-body text-leader">
+                        <h5 class="card-title my-0"><a href="{{ constant('MANTIS_VIEW') ~ payment.MANTIS_ID }}" target="_blank" class="text-decoration-none">{{ payment.MANTIS_ID }}</a></h5>
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="card">
+                    <div class="card-header bg-success text-white">{{ lang('col_app_date') }}</div>
+                    <div class="card-body text-success">
+                        <h5 class="card-title my-0">{{ payment.APP_DATE ? payment.APP_DATE|date('d/m/Y') }}</h5>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header bg-success text-white">{{ lang('col_tf_date') }}</div>
+                    <div class="card-body text-finance">
+                        <h5 class="card-title my-0">{{ payment.TF_DATE ? payment.TF_DATE|date('d/m/Y') }}</h5>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <table class="table table-bordered">
+            <tbody>
+                <tr>
+                    <th scope="row" class="border-info">{{ lang('col_pocy_ref_no') }}</th>
+                    <td class="border-info">{{ payment.POCY_REF_NO }}</td>
+                    <th scope="row" class="border-info">{{ lang('col_memb_ref_no') }}</th>
+                    <td class="border-info">{{ payment.MEMB_REF_NO }}</td>
+                </tr>
+                <tr>
+                    <th scope="row" class="border-info">{{ lang('col_memb_name') }}</th>
+                    <td class="border-info">{{ payment.MEMB_NAME }}</td>
+                    <th scope="row" class="border-info">{{ lang('col_payment_method') }}</th>
+                    <td class="border-info">{{ payment.PAY_METHOD }}</td>
+                </tr>
+                {% if payment.PAYMENT_METHOD == 'TT' %}
+                <tr>
+                    <th scope="row" class="border-info">{{ lang('col_acct_name') }}</th>
+                    <td class="border-info">{{ payment.ACCT_NAME }}</td>
+                    <th scope="row" class="border-info">{{ lang('col_acct_no') }}</th>
+                    <td class="border-info">{{ payment.ACCT_NO }}</td>
+                </tr>
+                {% endif %}
+                {% if payment.PAYMENT_METHOD == "CH" or payment.PAYMENT_METHOD == "CQ" %}
+                <tr>
+                    <th scope="row" class="border-info">{{ lang('col_beneficiary_name') }}</th>
+                    <td colspan="3" class="border-info">{{ payment.BENEFICIARY_NAME }}</td>
+                </tr>
+                {% endif %}
+                {% if payment.PAYMENT_METHOD == "TT" or payment.PAYMENT_METHOD == "CH" %}
+                <tr>
+                    <th scope="row" class="border-info">{{ lang('col_bank_name') }}</th>
+                    <td colspan="3" class="border-info">
+                    {% if payment.BANK_NAME or payment.BANK_BRANCH or payment.BANK_CITY %}
+                        {{ payment.BANK_NAME }}, {{ payment.BANK_BRANCH }}, {{ payment.BANK_CITY }}
+                    {% endif %}
+                    </td>
+                </tr>
+                {% endif %}
+                {% if payment.PAYMENT_METHOD == "CH" or payment.PAYMENT_METHOD == "CQ" %}
+                <tr>
+                    <th scope="row" class="border-info">{{ lang('col_pp_no') }}</th>
+                    <td class="border-info">{{ payment.PP_NO }}</td>
+                    <th scope="row" class="border-info">{{ lang('col_pp_date') }}</th>
+                    <td class="border-info">{{ payment.PP_DATE|date('d/m/Y') }}</td>
+                </tr>
+                <tr>
+                    <th scope="row" class="border-info">{{ lang('col_pp_place') }}</th>
+                    <td colspan="3" class="border-info">{{ payment.PP_PLACE }}</td>
+                </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+<div class="row">
+    <div class="col-12">
+        <div class="card border-info">
+            <div class="card-header text-info">
+                {% for action in toggle %}
+                <button type="button" class="{{ lang('modal_' ~ action ~ '_class') }}" data-toggle="modal" data-target="#toggle_{{ action }}">
+                    {{ lang('modal_' ~ action ~ '_btn') }}
+                </button>
+                {% endfor %}
+                {% for action in workflow %}
+                <button type="button" class="{{ lang('modal_' ~ action ~ '_class') }}" data-toggle="modal" data-target="#workflow_{{ action }}">
+                    {{ lang('modal_' ~ action ~ '_btn') }}
+                </button>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row mt-3">
+    {% if notes %}
+    <div class="col-6">
+        <div class="card text-white bg-primary">
+            <div class="card-header">
+                <i class="fas fa-comments"></i> {{ lang('payment_notes') }}
+            </div>
+        </div>
+        <div class="card-body card-scroll">
+            <ul class="chat">
+                {% for note in notes %}
+                <li class="{{ note.NOTE_POSITION }} clearfix">
+                    <span class="float-{{ note.NOTE_POSITION }}">
+                        <img src="http://placehold.it/50/{{ note.NOTE_COLOR }}/fff&text={{ note.NOTE_USER|first|upper }}" class="rounded-circle"/>
+                    </span>
+                    <div class="chat-body clearfix">
+                        <div class="header">
+                        {% if note.NOTE_POSITION == 'right' %}
+                            <small class="text-muted"><i class="fas fa-clock"></i>{{ note.NOTE_TIME }}</small>
+                            <span class="float-right"><b class="text-danger">{{ lang('payment_notes_for') ~ note.NOTE_DESC }}</b> - <b class="text-primary">{{ note.NOTE_USER }}</b></span>
+                        {% else %}
+                            <b class="text-primary">{{ note.NOTE_USER }}</b> - <b class="text-danger">{{ lang('payment_notes_for') ~ note.NOTE_DESC }}</b>
+                            <small class="float-right text-muted"><i class="fas fa-clock"></i>{{ note.NOTE_TIME }}</small>
+                        {% endif %}
+                        </div>
+                        <p class="text-{{ note.NOTE_POSITION }}">{{ note.NOTE_TEXT }}</p>
+                    </div>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+    {% endif %}
+    {% if transfers %}
+    <div class="col-12">
+        <div class="card border-info">
+            <div class="card-header text-primary">
+                <b><i class="fas fa-comments"></i> {{ lang('payment_transferred') }}</b>
+            </div>
+            <div class="card-body table-responsive">
+                <table class="table table-sm table-hover table-striped table-bordered">
+                    <thead>
+                        <tr class="bg-info text-white">
+                            <th scope="col">#</th>
+                            <th scope="col">{{ lang('col_tf_amt') }}</th>
+                            <th scope="col">{{ lang('col_tf_status') }}</th>
+                            <th scope="col">{{ lang('col_tf_date') }}</th>
+                            <th scope="col">{{ lang('col_tf_code') }}</th>
+                            <th scope="col">{{ lang('col_refund_date') }}</th>
+                            <th scope="col">{{ lang('col_refund_code') }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in transfers %}
+                            {% set bg_color = 'text-danger' %}
+                            {% if row.TRAN_STATUS == 'Transferred' %}
+                                {% set bg_color = 'text-success' %}
+                            {% elseif row.TRAN_STATUS == 'Closed' %}
+                                {% set bg_color = 'bg-danger text-white' %}
+                            {% endif %}
+                        <tr class="{{ bg_color }}">
+                            <th>{{ loop.index }}</th>
+                            <th>{{ row.TF_AMT|number_format }} {% if row.DEBT_BALANCE %}<span class="text-danger">(-{{ row.DEBT_BALANCE|number_format }})</span>{% endif %}</th>
+                            <td>{{ row.TRAN_STATUS }}</td>
+                            <td>{{ row.TF_DATE|date('d/m/Y') }}</td>
+                            <td>{{ row.TF_VCB_SEQ }}</td>
+                            <td>{% if row.REFUND_DATE %}{{ row.REFUND_DATE|date('d/m/Y') }}{% endif %}</td>
+                            <td>{{ row.REFUND_VCB_SEQ }}</td>
+                        </tr>
+                        <tr class="{{ bg_color }}">
+                            <td colspan="7">
+                            {% if row.PAYMENT_METHOD == 'TT' %}
+                                {{ lang('payment_transferred_details_tt')|format(row.ACCT_NAME, row.ACCT_NO, row.BANK_NAME, row.BANK_BRANCH, row.BANK_CITY) }}
+                            {% elseif row.PAYMENT_METHOD == 'CH' %}
+                                {{ lang('payment_transferred_details_ch')|format(row.BANK_NAME, row.BANK_BRANCH, row.BANK_CITY, row.PP_NO, row.BENEFICIARY_NAME, row.PP_DATE|date('d/m/Y'), row.PP_PLACE) }}
+                            {% elseif row.PAYMENT_METHOD == 'CQ' %}
+                                {{ lang('payment_transferred_details_cq')|format(row.PP_NO, row.BENEFICIARY_NAME, row.PP_DATE|date('d/m/Y'), row.PP_PLACE) }}
+                            {% else %}
+                                {{ lang('payment_transferred_details_pp') }}
+                            {% endif %}
+                            {% if row.MDTC %}
+                                {{ lang('payment_transferred_mdtc')|format(row.MDTC) }}
+                            {% endif %}
+                            {% if row.REFUND_DATE %}
+                                {{ lang('payment_transferred_refund_reason')|format(row.REFUND_REASON) }}
+                            {% endif %}
+                            {% if row.TRAN_STATUS == 'Closed' %}
+                                {{ lang('payment_transferred_closed') }}
+                            {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% set last_row = transfers|last %}
+                {% if last_row.TRAN_STATUS == 'Transferred' %}
+                <a href="#" class="btn btn-danger" data-toggle="modal" data-target="#decr_amt">
+                    <i class="fas fa-dollar-sign"></i> {{ lang('payment_transferred_decr_amt') }}
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    <div class="col-12 mt-3">
+        <div class="card border-info">
+            <div class="card-header text-primary">
+                <b><i class="fas fa-search-dollar"></i> {{ lang('payment_client_debit') }}</b>
+                <div class="float-right">
+                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#add_client_debit">
+                        <i class="far fa-plus-square"></i> {{ lang('payment_add_client_debit') }}
+                    </button>
+                    <button type="button" class="btn btn-success" data-toggle="modal" data-target="#add_client_paid">
+                        <i class="far fa-plus-square"></i> {{ lang('payment_add_client_paid') }}
+                    </button>
+                </div>
+            </div>
+            <div class="card-body table-responsive">
+                <table class="table table-sm table-hover table-striped table-bordered" id="client_debit_table">
+                    <thead>
+                        <tr class="bg-info text-white">
+                            <th scope="col">#</th>
+                            <th scope="col">{{ lang('col_debt_type') }}</th>
+                            <th scope="col">{{ lang('col_debt_cl_no') }}</th>
+                            <th scope="col">{{ lang('col_memb_name') }}</th>
+                            <th scope="col">{{ lang('col_memb_ref_no') }}</th>
+                            <th scope="col">{{ lang('col_pcv_expense') }}</th>
+                            <th scope="col">{{ lang('col_debt_amt') }}</th>
+                            <th scope="col">{{ lang('col_paid_amt') }}</th>
+                            <th scope="col">{{ lang('col_paid_cl_no') }}</th>
+                            <th scope="col">{{ lang('col_crt_user') }}</th>
+                            <th scope="col">{{ lang('col_crt_date') }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in client_debit %}
+                        <tr {% if row.DEBT_TYPE != constant('DEBT_TYPE_DEBT') %}class="not-debt"{% endif %}>
+                            <th>{{ row.DEBT_ID }}</th>
+                            <th class="text-danger">{{ row.DEBT_DESC }}</th>
+                            <td>{% if row.DEBT_CL_NO %}{{ row.DEBT_CL_NO }}{% endif %}</td>
+                            <td>{{ row.MEMB_NAME }}</td>
+                            <td>{{ row.MEMB_REF_NO }}</td>
+                            <th>{% if row.PCV_EXPENSE %}{{ row.PCV_EXPENSE|number_format }}{% endif %}</th>
+                            <th>{% if row.DEBT_AMT %}{{ row.DEBT_AMT|number_format }}{% endif %}</th>
+                            <th>{% if row.PAID_AMT %}{{ row.PAID_AMT|number_format }}{% endif %}</th>
+                            <td>{{ row.PAID_CL_NO }}</td>
+                            <td>{{ row.CRT_USER }}</td>
+                            <td>{{ row.CRT_DATE|date('d/m/Y H:i:s') }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% if history %}
+    <div class="col-12 my-3">
+        <div class="accordion" id="accordionHistory">
+            <div class="card border border-dark">
+                <div class="card-header text-dark" id="headingHistory">
+                    <button class="btn btn-outline-dark" type="button" data-toggle="collapse" data-target="#collapseHistory" aria-expanded="true" aria-controls="collapseHistory">{{ lang('payment_history') }}</button>
+                </div>
+                <div id="collapseHistory" class="collapse" aria-labelledby="headingHistory" data-parent="#accordionHistory">
+                    <div class="card-body table-responsive card-scroll">
+                        <table class="table table-sm table-hover table-striped table-bordered border-dark" id="history-payment">
+                            <thead>
+                                <tr class="bg-dark text-white">
+                                    <th scope="col">{{ lang('payment_history_col_date') }}</th>
+                                    <th scope="col">{{ lang('payment_history_col_type') }}</th>
+                                    <th scope="col">{{ lang('payment_history_col_user') }}</th>
+                                    <th scope="col">{{ lang('payment_history_col_field') }}</th>
+                                    <th scope="col">{{ lang('payment_history_col_old_value') }}</th>
+                                    <th scope="col">{{ lang('payment_history_col_new_value') }}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for record in history %}
+                                <tr>
+                                    <td>{{ record.CRT_DATE|date('d/m/Y H:i:s') }}</td>
+                                    <th>{{ record.HIST_DESC }}</th>
+                                    <td>{{ record.USER_NAME }}</td>
+                                    <td>{{ record.FIELD_NAME }}</td>
+                                    {% if record.FIELD_TYPE == 'D' %}
+                                    <td>{{ record.OLD_VALUE ? record.OLD_VALUE|date('d/m/Y') }}</td>
+                                    <td>{{ record.NEW_VALUE ? record.NEW_VALUE|date('d/m/Y') }}</td>
+                                    {% elseif record.FIELD_TYPE == 'N' %}
+                                    <td>{{ record.OLD_VALUE|number_format }}</td>
+                                    <td>{{ record.NEW_VALUE|number_format }}</td>
+                                    {% elseif record.FIELD_TYPE == 'S' %}
+                                    <td class="text-{{ record.OLD_COLOR }}">{{ record.OLD_STATUS }}</td>
+                                    <td class="text-{{ record.NEW_COLOR }}">{{ record.NEW_STATUS }}</td>
+                                    {% else %}
+                                    <td>{{ record.OLD_VALUE }}</td>
+                                    <td>{{ record.NEW_VALUE }}</td> 
+                                    {% endif %}
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% for action in toggle %}
+<div class="modal fade" id="toggle_{{ action }}" tabindex="-1" role="dialog" aria-labelledby="confirmTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title text-danger" id="confirmTitle">
+                    {{ lang('modal_' ~ action ~ '_title') }} #{{ payment.PAYMENT_NO }}
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            {% if lang('modal_' ~ action ~ '_desc') %}
+            <div class="modal-body">
+                <h5 class="text-primary">{{ lang('modal_' ~ action ~ '_desc') }}</h5>
+            </div>
+            {% endif %}
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ lang('btn_no') }}</button>
+                <form class="was-validated" role="form" enctype="multipart/form-data" method="post" action="{{ base_url() }}index.php/payments/{{ action }}/{{ payment.PAYM_ID }}">
+                    <button type="submit" class="btn btn-success">{{ lang('btn_yes') }}</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+{% for action in workflow %}
+    {% if role_id == constant('ROLE_FI') %}
+<div class="modal fade" id="workflow_{{ action }}" tabindex="-1" role="dialog" aria-labelledby="confirmTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title text-danger" id="confirmTitle">
+                    {{ lang('modal_' ~ action ~ '_title') }} #{{ payment.PAYMENT_NO }}
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form class="was-validated" role="form" enctype="multipart/form-data" method="post" action="{{ base_url() }}index.php/{{ controller }}/{{ action }}">
+                <div class="modal-body">
+                    {% if action == 'refund' %}
+                    <div class="form-group row">
+                        <label for="refund_date" class="col-4 col-form-label"><b>{{ lang('modal_refund_date') }}</b></label>
+                        <div class="col-8">
+                            <input type="text" class="form-control date" name="refund_date" autocomplete="off" required>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="refund_vcb_seq" class="col-4 col-form-label"><b>{{ lang('modal_refund_vcb_seq') }}</b></label>
+                        <div class="col-8">
+                            <input type="text" maxlength="15" class="form-control" name="refund_vcb_seq" autocomplete="off" required>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="refund_reason" class="col-4 col-form-label"><b>{{ lang('modal_refund_reason') }}</b></label>
+                        <div class="col-8">
+                            <textarea class="form-control" maxlength="200" name="refund_reason" required></textarea>
+                        </div>
+                    </div>
+                    {% else %}
+                    <h5 class="text-primary">{{ lang('modal_' ~ action ~ '_desc') }}</h5>
+                    {% endif %}
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ lang('btn_no') }}</button>
+                    <button type="submit" class="btn btn-danger">{{ lang('btn_yes') }}</button>
+                </div>
+                <!-- Hidden -->
+                <input type="hidden" name="paym_id" value="{{ payment.PAYM_ID }}">
+            </form>
+        </div>
+    </div>
+</div>
+    {% else %}
+<div class="modal fade" id="workflow_{{ action }}" tabindex="-1" role="dialog" aria-labelledby="confirmTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title text-danger" id="confirmTitle">
+                    {{ lang('modal_' ~ action ~ '_title') }} #{{ payment.PAYMENT_NO }}
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form class="was-validated" role="form" enctype="multipart/form-data" method="post" action="{{ base_url() }}index.php/{{ controller }}/{{ action }}/{{ payment.PAYM_ID }}">
+                {% if lang('modal_' ~ action ~ '_desc') or lang('modal_' ~ action ~ '_reason') %}
+                <div class="modal-body">
+                    {% if lang('modal_' ~ action ~ '_desc') %}
+                    <h5 class="text-primary">{{ lang('modal_' ~ action ~ '_desc') }}</h5>
+                    {% endif %}
+                    {% if lang('modal_' ~ action ~ '_reason') %}
+                    <textarea class="form-control" name="reject_reason" placeholder="{{ lang('modal_' ~ action ~ '_reason') }}" minlength="10" maxlength="1000" required></textarea>
+                    {% endif %}
+                </div>
+                {% endif %}
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ lang('btn_no') }}</button>
+                    <button type="submit" class="btn btn-success">{{ lang('btn_yes') }}</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+    {% endif %}
+{% endfor %}
+{% if transfers %}
+<div class="modal fade" id="decr_amt" tabindex="-1" role="dialog" aria-labelledby="confirmTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title text-danger" id="confirmTitle">{{ lang('payment_transferred_decr_amt') }}</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form class="was-validated" role="form" enctype="multipart/form-data" method="post" action="{{ base_url() }}index.php/decrease_transferred">
+                <div class="modal-body">
+                    <div class="form-group row">
+                        <label for="cl_no" class="col-5 col-form-label text-info">{{ lang('col_cl_no') }}</label>
+                        <div class="col-7">
+                            <input type="text" class="form-control text-right" name="cl_no" value="{{ payment.CL_NO }}" readonly>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="tf_amt" class="col-5 col-form-label text-info">{{ lang('col_tf_amt') }}</label>
+                        <div class="col-7">
+                            <input type="text" class="form-control text-right price" name="tf_amt" value="{{ last_row.TF_AMT }}" readonly>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="decr_amt" class="col-5 col-form-label text-info">{{ lang('col_decr_amt') }}</label>
+                        <div class="col-7 input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">-</span>
+                            </div>
+                            <input type="text" class="form-control text-right price" name="decr_amt" value="{{ last_row.DEBT_BALANCE }}" required>
+                        </div>
+                    </div>
+                    <p class="mb-0 text-danger">{{ lang('payment_transferred_desc') }}</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ lang('btn_no') }}</button>
+                    <button type="submit" class="btn btn-danger">{{ lang('btn_yes') }}</button>
+                    <!-- Hidden -->
+                    <input type="hidden" name="tran_id" value="{{ last_row.TRAN_ID }}">
+                    <input type="hidden" name="paym_id" value="{{ last_row.PAYM_ID }}">
+                    <input type="hidden" name="prev_decr_amt" value="{{ last_row.DEBT_BALANCE|number_format }}">
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% if client_debit %}
+<div class="modal fade" id="set_expense" tabindex="-1" role="dialog" aria-labelledby="confirmTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title text-danger" id="confirmTitle">{{ lang('payment_set_expense_title') }}</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form class="was-validated" role="form" enctype="multipart/form-data" method="post" action="{{ base_url() }}index.php/set_expense">
+                <div class="modal-body">
+                    <h6 class="text-primary">{{ lang('payment_set_expense_desc') }}<h6>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ lang('btn_no') }}</button>
+                    <button type="submit" class="btn btn-danger">{{ lang('btn_yes') }}</button>
+                    <!-- Hidden -->
+                    <input type="hidden" name="debt_ids" id="debt_ids">
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endif %}
+<div class="modal fade" id="add_client_debit" tabindex="-1" role="dialog" aria-labelledby="acdTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title text-primary" id="acdTitle">{{ lang('payment_add_client_debit') }}</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form class="was-validated" role="form" enctype="multipart/form-data" method="post" action="{{ base_url() }}index.php/add_client_debit">
+                <div class="modal-body">
+                    <div class="form-group row">
+                        <label for="memb_ref_no" class="col-5 col-form-label text-info">{{ lang('col_memb_ref_no') }}</label>
+                        <div class="col-7">
+                            <input type="text" class="form-control text-right" name="memb_ref_no" value="{{ payment.MEMB_REF_NO }}" readonly>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="memb_name" class="col-5 col-form-label text-info">{{ lang('col_memb_name') }}</label>
+                        <div class="col-7">
+                            <input type="text" class="form-control text-right" name="memb_name" value="{{ payment.MEMB_NAME }}" readonly>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="debt_amt" class="col-5 col-form-label text-info">{{ lang('col_debt_amt') }}</label>
+                        <div class="col-7 input-group">
+                            <input type="text" class="form-control text-right price" name="debt_amt" required>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ lang('btn_no') }}</button>
+                    <button type="submit" class="btn btn-danger">{{ lang('btn_yes') }}</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="add_client_paid" tabindex="-1" role="dialog" aria-labelledby="acpTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title text-success" id="acpTitle">{{ lang('payment_add_client_paid') }}</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form class="was-validated" role="form" enctype="multipart/form-data" method="post" action="{{ base_url() }}index.php/add_client_paid">
+                <div class="modal-body">
+                    <div class="form-group row">
+                        <label for="memb_ref_no" class="col-5 col-form-label text-info">{{ lang('col_memb_ref_no') }}</label>
+                        <div class="col-7">
+                            <input type="text" class="form-control text-right" name="memb_ref_no" value="{{ payment.MEMB_REF_NO }}" readonly>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="memb_name" class="col-5 col-form-label text-info">{{ lang('col_memb_name') }}</label>
+                        <div class="col-7">
+                            <input type="text" class="form-control text-right" name="memb_name" value="{{ payment.MEMB_NAME }}" readonly>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="debt_amt" class="col-5 col-form-label text-info">{{ lang('col_paid_amt') }}</label>
+                        <div class="col-7 input-group">
+                            <input type="text" class="form-control text-right price" name="paid_amt" required>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="debt_amt" class="col-5 col-form-label text-info">{{ lang('col_debt_cl_no') }}</label>
+                        <div class="col-7 input-group">
+                            <input type="number" class="form-control text-right"   name="debt_cl_no">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ lang('btn_no') }}</button>
+                    <button type="submit" class="btn btn-danger">{{ lang('btn_yes') }}</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block script %}
+<script type="text/javascript" src="{{ base_url() }}assets/js/jquery.price_format.2.0.js"></script>
+<script type="text/javascript" src="{{ base_url() }}assets/js/jquery-ui.min.js"></script>
+<script type="text/javascript" src="{{ base_url() }}assets/js/datatables.min.js"></script>
+<script>
+$( document ).ready( function() {
+    $( '[data-toggle="popover"]' ).popover( {
+        html: true,
+        sanitize : false,
+        content: function() {
+            return $( '#data-popover-content' ).html();
+        }
+    } );
+    $( '.price' ).priceFormat( {
+        prefix: '',
+        centsLimit: 0
+    } );
+    $('.date').datepicker({
+        dateFormat: 'dd/mm/yy'
+    });
+    {% if client_debit %}
+    $( '#client_debit_table' ).DataTable( {
+        lengthChange: false,
+        ordering: false,
+        dom: "<'row'<'col-12'tr>>" + 
+             "<'row'<'col-9'B>>",
+        buttons: [
+            {
+                text: '<i class="fas fa-adjust"></i> {{ lang("payment_set_expense_btn") }}',
+                className: 'btn btn-danger',
+                action: function ( e, dt, node, config ) {
+                    var ids = $.map( dt.rows( { selected: true } ).data(), function ( item ) {
+                        return item[ 0 ]
+                    } );
+                    if ( ids.length !== 0 ) {
+                        $( '#debt_ids' ).val( ids );
+                        $( '#set_expense' ).modal( 'toggle' );
+                    } else {
+                        alert( '{{ lang("payment_non_select_alert") }}' );
+                    }
+                }
+            }
+        ],
+        select: {
+            style: 'multi',
+            selector: 'tr:not(.not-debt)'
+        }
+    } );
+    {% endif %}
+} );
+</script>
+{% endblock %}

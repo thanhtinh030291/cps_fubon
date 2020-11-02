@@ -1,0 +1,316 @@
+{% extends "skeleton.twig" %}
+
+{% block css %}
+<link href="{{ base_url() }}assets/css/datatables.min.css" rel="stylesheet">
+{% endblock %}
+
+{% block body %}
+<div class="row my-3">
+    <div class="col-12">
+        <div class="card border-info">
+            <div class="card-header text-info">
+                <div class="row">
+                    <div class="col-12">
+                        <h3 class="text-{% if sheet.SHEET_STATUS == constant('SHEET_STATUS_SHEET') %}success{% else %}warning{% endif %}">{{ lang('fi_sheet_title') }}{{ sheet.SHEET_NAME }}</h3> 
+                        <h6 class="card-subtitle text-muted">{{ sheet.SHEET_UNAME }}</h6>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body table-responsive">
+                <table class="table table-sm table-hover table-striped table-bordered">
+                    <thead>
+                        <tr class="bg-info text-white">
+                            <th scope="col" class="noVis"></th>
+                            <th scope="col" class="noVis not-export-col">{{ lang('col_id') }}</th>
+                            <th scope="col" class="noVis">{{ lang('col_cl_no') }}</th>
+                            <th scope="col" class="noVis not-export-col"><i class="fas fa-list-ol"></i></th>
+                            <th scope="col" class="noVis">{{ lang('col_tf_amt') }}</th>
+                            <th scope="col" class="noVis">{{ lang('col_mantis_id') }}</th>
+                            <th scope="col" class="noVis">{{ lang('col_cl_type') }}</th>
+                            <th scope="col">{{ lang('col_payment_method') }}</th>
+                            <th scope="col">{{ lang('col_acct_name') }}</th>
+                            <th scope="col">{{ lang('col_acct_no') }}</th>
+                            <th scope="col">{{ lang('col_bank_name') }}</th>
+                            <th scope="col">{{ lang('col_bank_branch') }}</th>
+                            <th scope="col">{{ lang('col_bank_city') }}</th>
+                            <th scope="col">{{ lang('col_pocy_ref_no') }}</th>
+                            <th scope="col">{{ lang('col_memb_ref_no') }}</th>
+                            <th scope="col">{{ lang('col_memb_name') }}</th>
+                            <th scope="col">{{ lang('col_deduct_amt') }}</th>
+                            <th scope="col">{{ lang('col_disc_amt') }}</th>
+                            <th scope="col">{{ lang('col_tf_no') }}</th>
+                            <th scope="col">{{ lang('col_cl_user') }}</th>
+                            <th scope="col">{{ lang('col_pres_amt') }}</th>
+                            <th scope="col">{{ lang('col_app_amt') }}</th>
+                            <th scope="col">{{ lang('col_ben_type') }}</th>
+                            <th scope="col">{{ lang('col_prov_name') }}</th>
+                            <th scope="col">{{ lang('col_payee') }}</th>
+                            <th scope="col">{{ lang('col_inv_no') }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for payment in payments %}
+                        <tr>
+                            <td>{{ payment.PROCESS_ORDER }}</td>
+                            <th scope="row" class="text-right">{{ payment.PAYM_ID }}</th>
+                            <td>{{ payment.CL_NO }}</td>
+                            <td class="text-right">{{ payment.PAYMENT_TIME }}</td>
+                            <td class="text-right">{{ payment.TF_AMT|number_format }}</td>
+                            <td class="text-right">{{ payment.MANTIS_ID }}</td>
+                            <td>{{ payment.CL_TYPE }}</td>
+                            <td>{{ bank_info.PAYMENT_METHOD }}</td>
+                            <td>{{ bank_info.ACCT_NAME }}</td>
+                            <td>{{ bank_info.ACCT_NO }}</td>
+                            <td>{{ bank_info.BANK_NAME }}</td>
+                            <td>{{ bank_info.BANK_BRANCH }}</td>
+                            <td>{{ bank_info.BANK_CITY }}</td>
+                            <td>{{ payment.POCY_REF_NO }}</td>
+                            <td>{{ payment.MEMB_REF_NO }}</td>
+                            <td>{{ payment.MEMB_NAME }}</td>
+                            <td class="text-right">{{ payment.DEDUCT_AMT|number_format }}</td>
+                            <td class="text-right">{{ payment.DISC_AMT|number_format }}</td>
+                            <td>{{ payment.TF_NO }}</td>
+                            <td>{{ payment.CL_USER }}</td>
+                            <td class="text-right">{{ payment.PRES_AMT|number_format }}</td>
+                            <td class="text-right">{{ payment.APP_AMT|number_format }}</td>
+                            <td>{{ payment.BEN_TYPE }}</td>
+                            <td>{{ payment.PROV_NAME }}</td>
+                            <td>{{ payment.PAYEE }}</td>
+                            <td>{{ payment.INV_NO }}</td>
+                        </tr>
+                        {% endfor %}
+                        <tfoot>
+                            <tr>
+                                <td></td>
+                                <th colspan="2" class="bg-white text-primary align-middle">{{ lang('fi_total_amt') }}</th>
+                                <th class="bg-white text-primary text-right align-middle">{{ sheet.TOTAL_AMT|number_format }}</th>
+                                <th class="text-center">
+                                    {% if sheet.SHEET_STATUS == constant('SHEET_STATUS_SHEET') %}
+                                    <a class="btn btn-outline-danger" role="button" href="#" data-toggle="modal" data-target="#close">
+                                        <i class="fas fa-lock"></i> {{ lang('fi_sheet_close_btn') }}
+                                    </a>
+                                    {% elseif sheet.SHEET_STATUS == constant('SHEET_STATUS_TRANSFERRING') %}
+                                    <a class="btn btn-outline-primary" role="button" href="{{ base_url() }}index.php/fi/vcbsheet/{{ sheet.SHEET_ID }}">
+                                        <i class="fas fa-eye"></i> {{ lang('fi_sheet_vcbsheet_btn') }}
+                                    </a>
+                                    {% endif %}
+                                </th>
+                                {% for i in 0..20 %}
+                                <td></td>
+                                {% endfor %}
+                            </tr>
+                        </tfoot>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="close" tabindex="-1" role="dialog" aria-labelledby="confirmTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title text-danger" id="confirmTitle">{{ lang('fi_sheet_close_title')|format(sheet.SHEET_NAME) }}</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <h5 class="text-primary">{{ lang('fi_sheet_close_desc') }}</h5>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ lang('fi_modal_no_btn') }}</button>
+                <form role="form" enctype="multipart/form-data" method="post" action="{{ base_url() }}index.php/fi/close">
+                    <button type="submit" class="btn btn-danger">{{ lang('fi_modal_yes_btn') }}</button>
+                    <!-- Hidden -->
+                    <input type="hidden" name="sheet_id" value="{{ sheet.SHEET_ID }}">
+                    <input type="hidden" name="sheet_type" value="{{ sheet.SHEET_TYPE }}">
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="eject" tabindex="-1" role="dialog" aria-labelledby="ejectTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title text-danger" id="ejectTitle">{{ lang('fi_sheet_eject_title') }}</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <h5 class="text-primary">{{ lang('fi_move_desc')|format('APPROVED') }}<h5>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ lang('btn_no') }}</button>
+                <form role="form" enctype="multipart/form-data" method="post" action="{{ base_url() }}index.php/fi/eject">
+                    <button type="submit" class="btn btn-danger">{{ lang('btn_yes') }}</button>
+                    <!-- Hidden -->
+                    <input type="hidden" name="paym_ids" id="eject_paym_ids">
+                    <input type="hidden" name="sheet_id" value="{{ sheet.SHEET_ID }}">
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="return" tabindex="-1" role="dialog" aria-labelledby="returnTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title text-danger" id="returnTitle">{{ lang('fi_return_title') }}</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form class="was-validated" role="form" enctype="multipart/form-data" method="post" action="{{ base_url() }}index.php/fi/sheet_return">
+                <div class="modal-body">
+                    <label for="return_reason">{{ lang('fi_reason') }}</label>
+                    <textarea class="form-control" name="return_reason" maxlength="1000" required></textarea>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ lang('btn_no') }}</button>
+                    <button type="submit" class="btn btn-success">{{ lang('btn_yes') }}</button>
+                </div>
+                <!-- Hidden -->
+                <input type="hidden" name="paym_ids" id="return_paym_ids">
+                <input type="hidden" name="sheet_id" value="{{ sheet.SHEET_ID }}">
+            </form>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="renew" tabindex="-1" role="dialog" aria-labelledby="returnTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title text-danger" id="returnTitle">{{ lang('fi_renew_title') }}</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form class="was-validated" role="form" enctype="multipart/form-data" method="post" action="{{ base_url() }}index.php/renew_to_claim">
+                <div class="modal-body">
+                    <label for="renew_reason">{{ lang('fi_return_reason') }}</label>
+                    <textarea class="form-control" name="renew_reason" maxlength="1000" required></textarea>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ lang('btn_no') }}</button>
+                    <button type="submit" class="btn btn-success">{{ lang('btn_yes') }}</button>
+                </div>
+                <!-- Hidden -->
+                <input type="hidden" name="paym_ids" id="renew_paym_ids">
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block script %}
+<script type="text/javascript" src="{{ base_url() }}assets/js/datatables.min.js"></script>
+<script>
+$( document ).ready( function() {
+    $( '#fi-partner' ).addClass( 'active' );
+    var list_selected_index = [];
+    $( 'table' ).DataTable( {
+        lengthChange: false,
+        order: [[ 0, "asc" ]],
+        dom: "<'row'<'col-9'B><'col-3'f>>" +
+             "<'row'<'col-12'tr>>" +
+             "<'row'<'col-5'i><'col-7'p>>",
+        columnDefs: [
+            {
+                targets: [ 0 ],
+                visible: false,
+                searchable: false
+            },
+            {
+                targets: [ {{ range(16, 25)|join(',') }} ],
+                visible: false
+            }
+        ],
+        buttons: [
+            {
+                extend: 'excel',
+                filename: 'partner_sheet_{{ sheet.SHEET_NAME }}_FUBON',
+                className: 'btn btn-excel',
+                title : null,
+                exportOptions: {
+                    columns: ':visible:not(.not-export-col)'
+                }
+            },
+            'selectAll',
+            'selectNone',
+            {% if sheet.SHEET_STATUS == constant('SHEET_STATUS_SHEET') %}
+            {
+                text: '<i class="fas fa-minus"></i> {{ lang("fi_sheet_eject_btn") }}',
+                className: 'btn btn-danger',
+                action: function ( e, dt, node, config ) {
+                    var ids = $.map( dt.rows( { selected: true } ).data(), function ( item ) {
+                        return item[ 1 ]
+                    } );
+                    if ( ids != '' ) {
+                        $( '#eject_paym_ids' ).val( ids );
+                        $( '#eject' ).modal( 'toggle' );
+                    } else {
+                        alert( '{{ lang("fi_non_select_alert") }}' );
+                    }
+                }
+            },
+            {
+                text: '<i class="fas fa-arrow-circle-left"></i> {{ lang("fi_return_btn") }}',
+                className: 'btn btn-light text-danger',
+                action: function ( e, dt, node, config ) {
+                    var ids = $.map( dt.rows( { selected: true } ).data(), function ( item ) {
+                        return item[ 1 ]
+                    } );
+                    if ( ids != '' ) {
+                        $( '#return_paym_ids' ).val( ids );
+                        $( '#return' ).modal( 'toggle' );
+                    } else {
+                        alert( '{{ lang("fi_non_select_alert") }}' );
+                    }
+                }
+            },
+            {% endif %}
+            {
+                extend: 'colvis',
+                text: '{{ lang("fi_show_hide_btn") }}',
+                collectionLayout: 'four-column',
+                className: 'btn btn-info',
+                columns: ':not(.noVis)'
+            },
+            {
+                text: '{{ lang("fi_select_filter_btn") }}',
+                action: function ( e, dt, button, config ) {
+                    dt.rows( { page: 'current' } ).select();
+                }
+            },
+            {
+                text: '<i class="fas fa-retweet"></i> {{ lang("fi_renew_btn") }}',
+                className: 'btn btn-light text-danger btn-max-width',
+                action: function ( e, dt, node, config ) {
+                    var ids = $.map( list_selected_index, function ( item ) {
+                        return dt.row( item ).data()[1]
+                    } );
+                    var selected_ids = $.map( dt.rows( { selected: true } ).data(), function ( item ) {
+                        return item[ 1 ]
+                    } );
+                    if ( selected_ids.length > ids.length ) {
+                        ids = selected_ids;
+                    }
+                    if ( ids.length > 0 ) {
+                        $( '#renew_paym_ids' ).val( ids );
+                        $( '#renew' ).modal( 'toggle' );
+                    } else {
+                        alert( '{{ lang("fi_non_select_alert") }}' );
+                    }
+                }
+            }
+        ],
+        select: {
+            style: 'multi'
+        },
+    });
+} );
+</script>
+{% endblock %}
