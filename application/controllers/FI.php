@@ -2288,7 +2288,7 @@ class FI extends CI_Controller {
                         
                         $tw['payment']['DESC'] = "Thanh toán bồi thường hộ FUBON cho số {$value2['CL_NO']}  (Hợp đồng BH số {$value2['POCY_REF_NO']}), Nhận tiền mặt tại {$value2['BANK_NAME']}, {$value2['BANK_CITY']}, {$value2['BANK_BRANCH']} bằng CMND số {$ppDay} của {$value2['BENEFICIARY_NAME']}, ngày cấp: {$value2['PP_DATE']}, nơi cấp: {$value2['PP_PLACE']}";
                     }else{
-                        $tw['payment']['DESC'] = "Thanh toán bồi thường hộ FUBON cho số {$value2['CL_NO']}  (Hợp đồng BH số {$value2['POCY_REF_NO']}), Claim payment for FUBON";
+                        $tw['payment']['DESC'] = "Thanh toán bồi thường hộ FUBON cho số {$value2['CL_NO']}  (Hợp đồng BH số {$value2['POCY_REF_NO']}), Claim payment for Fubon";
                     }
                     $html = $this->load->view('pdf/bank_request_form', $tw, true);
                     $mpdf->AddPage();
@@ -2299,7 +2299,7 @@ class FI extends CI_Controller {
                 $tw['payment']['TF_AMT'] = array_sum(array_column($value, 'TF_AMT')); 
                 $tw['payment']['TF_AMT_WORD']= number_to_words($tw['payment']['TF_AMT']);
                 $all_cl_no = truncateString(implode(", ",array_column($value, 'CL_NO')) , 70);
-                $tw['payment']['DESC'] = "Thanh toán bồi thường hộ FUBON cho số {$all_cl_no}, Claim payment for FUBON";
+                $tw['payment']['DESC'] = "Thanh toán bồi thường hộ FUBON cho số {$all_cl_no}, Claim payment for Fubon";
                 $html = $this->load->view('pdf/bank_request_form', $tw, true);
                 $mpdf->AddPage();
                 $mpdf->WriteHTML($html);

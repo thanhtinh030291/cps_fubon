@@ -296,7 +296,7 @@ class Sheets_model extends CI_Model {
                     $list[1],
                     $list[3] . ' - ' . $list[4] . ' - ' . $list[5],
                     $val['TF_AMT'], 'vnd',
-                    'Thanh toán bồi thường hộ Dai-ichi cho số ' . $cl_no . ' (Hợp đồng BH số ' . $pocy_ref_no . '), Claim payment for Dai-ichi'
+                    'TTBT hộ Fubon cho số ' . $cl_no . ' (Hợp đồng BH số ' . $pocy_ref_no . '), Claim payment for Fubon'
                 ];
             }
             else

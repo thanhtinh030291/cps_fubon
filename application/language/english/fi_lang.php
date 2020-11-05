@@ -41,7 +41,7 @@ $lang['search_btn'] = 'Search';
 
 $lang['fi_sheets'] = 'Sheets';
 $lang['fi_vcbsheet_title'] = '[Vietcombank Sheet] ';
-$lang['fi_vcbsheet_content_tt'] = 'Thanh toán bồi thường hộ Dai-ichi cho số %s (Hợp đồng BH số %s), Claim payment for Dai-ichi';
+$lang['fi_vcbsheet_content_tt'] = 'TTBT hộ Fubon cho số %s (Hợp đồng BH số %s), Claim payment for Fubon';
 $lang['fi_vcbsheet_content_ch'] = '%s, ID: %s, NGAY: %s, NOI: %s, NHAN TM TAI: %s - %s - %s';
 
 
