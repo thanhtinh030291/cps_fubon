@@ -7,7 +7,7 @@ $lang['cb_month'] = 'Month';
 $lang['cb_year'] = 'Year';
 $lang['cb_search_btn'] = 'Search';
 
-$lang['cb_report_title'] = 'DAI-ICHI CLAIMS PAID';
+$lang['cb_report_title'] = 'FUBON CLAIMS PAID';
 $lang['cb_report_desc'] = 'For %s/%s';
 
 $lang['col_cb_no'] = 'No';

@@ -103,7 +103,7 @@ $('.table').DataTable({
     buttons: [
         {
             extend: 'excel',
-            filename: 'Report_Dai-ichi_Claim_Bordereaux_{{ post.cb_month }}-{{ post.cb_year }}',
+            filename: 'Report_Fubon_Claim_Bordereaux_{{ post.cb_month }}-{{ post.cb_year }}',
             className: 'btn btn-excel',
             title : "{{ lang('cb_report_title') }}",
             messageTop: "{{ lang('cb_report_desc')|format(post.cb_month, post.cb_year) }}"

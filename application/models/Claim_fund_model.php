@@ -242,7 +242,7 @@ class Claim_fund_model extends CI_Model {
         {
             mkdir($path);
         }
-        $out_name = $path . '/Report_Dai-ichi_Claim_Fund_' . str_replace('/', '-', $date_from . '_' . $date_to) . '.xlsx';
+        $out_name = $path . '/Report_Fubon_Claim_Fund_' . str_replace('/', '-', $date_from . '_' . $date_to) . '.xlsx';
         
         // create ClaimFund_DLVN.xlsx
         $spreadsheet = new Spreadsheet();

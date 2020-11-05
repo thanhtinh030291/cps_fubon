@@ -64,7 +64,7 @@ class Reports_model extends CI_Model {
         $spreadsheet = new Spreadsheet();
         $spreadsheet->setActiveSheetIndex(0);
         $sheet = $spreadsheet->getActiveSheet(0);
-        $sheet->setCellValue('F1', 'DAI-ICHI CLAIMS PAID');
+        $sheet->setCellValue('F1', 'FUBON CLAIMS PAID');
         foreach ($header as $col => $name)
         {
             $sheet->getColumnDimension($col)->setAutoSize(true);
